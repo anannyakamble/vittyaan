@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
   },
 
   card: {
-  width: '100%',
+  width: '90%',
   maxWidth: 350,
   padding: 20,
   borderRadius: 20,
@@ -192,6 +192,7 @@ const styles = StyleSheet.create({
   },
 
   button: {
+    width: '100%',
     borderWidth: 1,
     borderColor: 'white',
     padding: 12,
@@ -213,6 +214,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 10,
+    flexWrap: 'wrap',
   },
 
   gender: {

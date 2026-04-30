@@ -36,7 +36,7 @@ export default function Login() {
             ]}
           >
             <Text style={styles.logo}>VB</Text>
-            <Text style={styles.title}>WELCOME BACK</Text>
+            <Text style={styles.title} numberOfLines={2} adjustsFontSizeToFit>WELCOME BACK</Text>
             <Text style={styles.subtitle}>
               A reliable platform for smarter financial decisions
             </Text>
@@ -56,7 +56,7 @@ export default function Login() {
               <TextInput placeholder="Password" style={styles.input} />
 
               <Pressable style={styles.button}>
-                <Text style={styles.buttonText}>LOGIN</Text>
+                <Text style={styles.buttonText} numberOfLines={1} adjustsFontSizeToFit>LOGIN</Text>
               </Pressable>
 
               <Pressable onPress={() => router.push('/register')}>
