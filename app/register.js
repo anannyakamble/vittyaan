@@ -171,7 +171,7 @@ const styles = StyleSheet.create({
   title: {
   color: 'white',
   //fontSize: Dimensions.get('window').width < 768 ? 28 : 36,
-  fontSize: 42,
+  fontSize: 60,
   fontWeight: 'bold',
   flexWrap: 'wrap',
   marginBottom: 10,
