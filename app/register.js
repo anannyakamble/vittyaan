@@ -137,6 +137,7 @@ export default function Register() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    width: '100%',
   },
 
   left: {

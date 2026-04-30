@@ -11,7 +11,9 @@ export default function BackgroundWrapper({ children }) {
 
 
         <View style={styles.overlay}>
-  {children}
+  <View style={styles.content}>
+    {children}
+  </View>
 </View>
       </ImageBackground>
     </View>
@@ -30,5 +32,12 @@ const styles = StyleSheet.create({
   overlay: {
   flex: 1,
   backgroundColor: 'rgba(0,0,0,0.4)',
+
+  justifyContent: 'center',   
+  alignItems: 'center',       
+},
+content: {
+  width: '100%',
+  maxWidth: 1200,   // fixes stretching
 },
 })

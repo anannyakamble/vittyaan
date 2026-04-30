@@ -22,7 +22,10 @@ export default function Login() {
           style={[
             styles.container,
             { flexDirection: isMobile ? 'column' : 'row' ,
-              justifyContent: isMobile ? 'center' : 'flex-start',
+              //justifyContent: isMobile ? 'center' : 'flex-start',
+
+              justifyContent: 'center',
+alignItems: 'center',
             },
           ]}
         >
@@ -30,7 +33,9 @@ export default function Login() {
           <View
             style={[
               styles.left,
-              { width: isMobile ? '100%' : '60%',
+              { //width: isMobile ? '100%' : '60%',
+                width: isMobile ? '100%' : '45%',
+marginRight: isMobile ? 0 : 40,
                  marginBottom: isMobile ? 30 : 0, 
                },
             ]}
@@ -46,7 +51,7 @@ export default function Login() {
           <View
             style={[
               styles.right,
-              { width: isMobile ? '100%' : '40%' },
+              { width: isMobile ? '100%' : '35%' },
             ]}
           >
             <View style={styles.card}>
@@ -75,6 +80,7 @@ export default function Login() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    width: '100%',
   },
 
   left: {
