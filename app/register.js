@@ -15,6 +15,7 @@ export default function Register() {
   const router = useRouter()
   const screenWidth = Dimensions.get('window').width
   const isMobile = screenWidth < 768
+  const [gender, setGender] = useState(null)
 
   // 👇 STEP CONTROL (IMPORTANT)
   const [step, setStep] = useState(1)
@@ -39,7 +40,14 @@ export default function Register() {
             ]}
           >
             <Text style={styles.logo}>VB</Text>
-            <Text style={styles.title}>CREATE YOUR ACCOUNT</Text>
+            <Text
+  style={[
+    styles.title,
+    { fontSize: isMobile ? 28 : 42 }
+  ]}
+>
+  CREATE YOUR ACCOUNT
+</Text>
             <Text style={styles.subtitle}>
               A reliable platform for smarter financial decisions
             </Text>
@@ -80,11 +88,20 @@ export default function Register() {
                     style={styles.input}
                   />
 
-                  <View style={styles.genderRow}>
-                    <Text style={styles.gender}>Male</Text>
-                    <Text style={styles.gender}>Female</Text>
-                    <Text style={styles.gender}>Other</Text>
-                  </View>
+                 <View style={styles.genderContainer}>
+  {['Male', 'Female', 'Other'].map((item) => (
+    <Pressable
+      key={item}
+      onPress={() => setGender(item)}
+      style={styles.genderOption}
+    >
+      <View style={styles.radioOuter}>
+        {gender === item && <View style={styles.radioInner} />}
+      </View>
+      <Text style={styles.genderText}>{item}</Text>
+    </Pressable>
+  ))}
+</View>
 
                   <TextInput
                     placeholder="Referral Code (Optional)"
@@ -153,10 +170,12 @@ const styles = StyleSheet.create({
 
   title: {
   color: 'white',
-  fontSize: Dimensions.get('window').width < 768 ? 28 : 36,
+  //fontSize: Dimensions.get('window').width < 768 ? 28 : 36,
+  fontSize: 42,
   fontWeight: 'bold',
   flexWrap: 'wrap',
   marginBottom: 10,
+  letterSpacing: 1,
 },
 
   subtitle: {
@@ -221,4 +240,37 @@ const styles = StyleSheet.create({
   gender: {
     color: 'white',
   },
+
+  genderContainer: {
+  flexDirection: 'row',
+  marginVertical: 10,
+},
+
+genderOption: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  marginRight: 20,
+},
+
+radioOuter: {
+  width: 18,
+  height: 18,
+  borderRadius: 9,
+  borderWidth: 2,
+  borderColor: 'white',
+  alignItems: 'center',
+  justifyContent: 'center',
+},
+
+radioInner: {
+  width: 10,
+  height: 10,
+  borderRadius: 5,
+  backgroundColor: 'white',
+},
+
+genderText: {
+  color: 'white',
+  marginLeft: 6,
+},
 })

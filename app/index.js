@@ -41,7 +41,15 @@ marginRight: isMobile ? 0 : 40,
             ]}
           >
             <Text style={styles.logo}>VB</Text>
-            <Text style={styles.title} numberOfLines={2} adjustsFontSizeToFit>WELCOME BACK</Text>
+            {/* <Text style={styles.title} numberOfLines={2} adjustsFontSizeToFit>WELCOME BACK</Text> */}
+            <Text
+  style={[
+    styles.title,
+    { fontSize: isMobile ? 28 : 42 }   // 🔥 control here
+  ]}
+>
+  WELCOME BACK
+</Text>
             <Text style={styles.subtitle}>
               A reliable platform for smarter financial decisions
             </Text>
@@ -96,10 +104,12 @@ const styles = StyleSheet.create({
 
   title: {
   color: 'white',
-  fontSize: Dimensions.get('window').width < 768 ? 28 : 36,
+  //fontSize: Dimensions.get('window').width < 768 ? 28 : 36,
+  fontSize: 42,
   fontWeight: 'bold',
   flexWrap: 'wrap',
   marginBottom: 10,
+  letterSpacing: 1,
 },
 
   subtitle: {
