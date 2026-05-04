@@ -26,32 +26,36 @@ export default function Register() {
         <View
           style={[
             styles.container,
-            { flexDirection: isMobile ? 'column' : 'row' ,
-            justifyContent: isMobile ? 'center' : 'flex-start'},
+            {
+              flexDirection: isMobile ? 'column' : 'row',
+              justifyContent: isMobile ? 'center' : 'flex-start'
+            },
           ]}
         >
           {/* LEFT */}
           <View
             style={[
               styles.left,
-              { width: isMobile ? '100%' : '40%',
-                 marginBottom: isMobile ? 30 : 0, 
-               },
+              {
+                width: isMobile ? '100%' : '40%',
+                marginBottom: isMobile ? 30 : 0,
+              },
             ]}
           >
             <Text style={styles.logo}>VB</Text>
             <Text
-  style={[
-    styles.title,
-    { fontSize: isMobile ? 28 : 42,
-      textAlign: 'center',
-     }
-  ]}
->
-  CREATE YOUR ACCOUNT
-</Text>
+              style={[
+                styles.title,
+                {
+                  fontSize: isMobile ? 28 : 42,
+                  textAlign: 'center',
+                }
+              ]}
+            >
+              CREATE YOUR ACCOUNT
+            </Text>
             <Text style={styles.subtitle,
-  { textAlign: 'center' } 
+              { textAlign: 'center' }
             }>
               A reliable platform for smarter financial decisions
             </Text>
@@ -92,20 +96,20 @@ export default function Register() {
                     style={styles.input}
                   />
 
-                 <View style={styles.genderContainer}>
-  {['Male', 'Female', 'Other'].map((item) => (
-    <Pressable
-      key={item}
-      onPress={() => setGender(item)}
-      style={styles.genderOption}
-    >
-      <View style={styles.radioOuter}>
-        {gender === item && <View style={styles.radioInner} />}
-      </View>
-      <Text style={styles.genderText}>{item}</Text>
-    </Pressable>
-  ))}
-</View>
+                  <View style={styles.genderContainer}>
+                    {['Male', 'Female', 'Other'].map((item) => (
+                      <Pressable
+                        key={item}
+                        onPress={() => setGender(item)}
+                        style={styles.genderOption}
+                      >
+                        <View style={styles.radioOuter}>
+                          {gender === item && <View style={styles.radioInner} />}
+                        </View>
+                        <Text style={styles.genderText}>{item}</Text>
+                      </Pressable>
+                    ))}
+                  </View>
 
                   <TextInput
                     placeholder="Referral Code (Optional)"
@@ -162,32 +166,34 @@ const styles = StyleSheet.create({
   },
 
   left: {
-  justifyContent: 'center',
-  alignItems: 'center', 
-  padding: 30,
-},
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 30,
+  },
 
   logo: {
     color: 'white',
-    fontSize: 18,
+    fontSize: 30,
     marginBottom: 10,
+
   },
 
   title: {
-  color: 'white',
-  //fontSize: Dimensions.get('window').width < 768 ? 28 : 36,
-  fontSize: 60,
-  fontWeight: 'bold',
-  flexWrap: 'wrap',
-  marginBottom: 10,
-  letterSpacing: 1,
-},
+    color: 'white',
+
+    fontSize: 60,
+    fontWeight: 'bold',
+    flexWrap: 'wrap',
+    marginBottom: 10,
+    letterSpacing: 1,
+  },
 
   subtitle: {
-    color: '#ccc',
-    fontSize: 14,
+    color: 'white',
+    fontSize: 16,
     maxWidth: 400,
-  textAlign: 'center',
+    textAlign: 'center',
+    opacity: 0.8,
   },
 
   right: {
@@ -197,12 +203,12 @@ const styles = StyleSheet.create({
   },
 
   card: {
-  width: '90%',
-  maxWidth: 350,
-  padding: 20,
-  borderRadius: 20,
-  backgroundColor: 'rgba(255,255,255,0.12)',
-},
+    width: '90%',
+    maxWidth: 350,
+    padding: 20,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255,255,255,0.12)',
+  },
 
   heading: {
     color: 'white',
@@ -211,11 +217,13 @@ const styles = StyleSheet.create({
   },
 
   input: {
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: 'rgba(255,255,255,0.15)',
     marginBottom: 10,
     padding: 12,
     borderRadius: 10,
     color: 'white',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
   },
 
   button: {
@@ -225,10 +233,13 @@ const styles = StyleSheet.create({
     padding: 12,
     marginTop: 10,
     alignItems: 'center',
+    borderRadius: 10,
   },
 
   buttonText: {
     color: 'white',
+    fontWeight: 'bold',
+
   },
 
   link: {
@@ -249,35 +260,37 @@ const styles = StyleSheet.create({
   },
 
   genderContainer: {
-  flexDirection: 'row',
-  marginVertical: 10,
-},
+    flexDirection: 'row',
+    marginVertical: 10,
+  },
 
-genderOption: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  marginRight: 20,
-},
+  genderOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 20,
+    padding: 6,
+    borderRadius: 8,
+  },
 
-radioOuter: {
-  width: 18,
-  height: 18,
-  borderRadius: 9,
-  borderWidth: 2,
-  borderColor: 'white',
-  alignItems: 'center',
-  justifyContent: 'center',
-},
+  radioOuter: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    borderWidth: 2,
+    borderColor: 'white',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 
-radioInner: {
-  width: 10,
-  height: 10,
-  borderRadius: 5,
-  backgroundColor: 'white',
-},
+  radioInner: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: 'white',
+  },
 
-genderText: {
-  color: 'white',
-  marginLeft: 6,
-},
+  genderText: {
+    color: 'white',
+    marginLeft: 6,
+  },
 })

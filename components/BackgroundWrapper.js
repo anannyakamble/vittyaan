@@ -38,6 +38,6 @@ const styles = StyleSheet.create({
 },
 content: {
   width: '100%',
-  maxWidth: 1200,   // fixes stretching
+  maxWidth: 1200,   
 },
 })

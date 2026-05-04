@@ -21,8 +21,8 @@ export default function Login() {
         <View
           style={[
             styles.container,
-            { flexDirection: isMobile ? 'column' : 'row' ,
-              //justifyContent: isMobile ? 'center' : 'flex-start',
+            {
+              flexDirection: isMobile ? 'column' : 'row',
 
               justifyContent: 'center',
               alignItems: 'center',
@@ -33,38 +33,38 @@ export default function Login() {
           <View
             style={[
               styles.left,
-              { 
+              {
                 width: isMobile ? '100%' : '40%',
                 marginRight: isMobile ? 0 : 40,
-                 marginBottom: isMobile ? 30 : 0, 
-                 alignItems: isMobile ? 'center' : 'flex-start',
+                marginBottom: isMobile ? 30 : 0,
+                alignItems: isMobile ? 'center' : 'flex-start',
 
-               },
+              },
             ]}
           >
             <Text style={styles.logo}>VB</Text>
             {/* <Text style={styles.title} numberOfLines={2} adjustsFontSizeToFit>WELCOME BACK</Text> */}
             <Text
-         style={[
-         styles.title,
-         {
-          fontSize: isMobile ? 28 : 42,
-          textAlign: 'center',   
-    },
-  ]}
->
-  WELCOME BACK
-</Text>
+              style={[
+                styles.title,
+                {
+                  fontSize: isMobile ? 28 : 42,
+                  textAlign: 'center',
+                },
+              ]}
+            >
+              WELCOME BACK
+            </Text>
             <Text
-  style={[
-    styles.subtitle,
-    {
-      textAlign: 'center',   
-    },
-  ]}
->
-  A reliable platform for smarter financial decisions
-</Text>
+              style={[
+                styles.subtitle,
+                {
+                  textAlign: 'center',
+                },
+              ]}
+            >
+              A reliable platform for smarter financial decisions
+            </Text>
           </View>
 
           {/* RIGHT */}
@@ -102,11 +102,11 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
   },
-left: {
-  justifyContent: 'center',
-  alignItems: 'center',   // 🔥 KEY FIX
-  padding: 30,
-},
+  left: {
+    justifyContent: 'center',
+    alignItems: 'center',   
+    padding: 30,
+  },
 
   logo: {
     color: 'white',
@@ -115,20 +115,20 @@ left: {
   },
 
   title: {
-  color: 'white',
-  //fontSize: Dimensions.get('window').width < 768 ? 28 : 36,
-  fontSize: 60,
-  fontWeight: 'bold',
-  flexWrap: 'wrap',
-  marginBottom: 10,
-  letterSpacing: 1,
-},
+    color: 'white',
+    fontSize: 60,
+    fontWeight: 'bold',
+    flexWrap: 'wrap',
+    marginBottom: 10,
+    letterSpacing: 1,
+  },
 
   subtitle: {
     color: '#ccc',
-    fontSize: 14,
+    fontSize: 16,
     maxWidth: 400,
-  textAlign: 'center',
+    textAlign: 'center',
+    opacity: 0.8,
   },
 
   right: {
@@ -138,12 +138,12 @@ left: {
   },
 
   card: {
-  width: '100%',
-  maxWidth: 350,
-  padding: 20,
-  borderRadius: 20,
-  backgroundColor: 'rgba(255,255,255,0.12)',
-},
+    width: '100%',
+    maxWidth: 350,
+    padding: 20,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255,255,255,0.12)',
+  },
 
   heading: {
     color: 'white',
@@ -165,10 +165,12 @@ left: {
     padding: 12,
     marginTop: 10,
     alignItems: 'center',
+    borderRadius: 10,
   },
 
   buttonText: {
     color: 'white',
+    fontWeight: 'bold',
   },
 
   link: {
