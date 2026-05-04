@@ -25,7 +25,7 @@ export default function Login() {
               //justifyContent: isMobile ? 'center' : 'flex-start',
 
               justifyContent: 'center',
-alignItems: 'center',
+              alignItems: 'center',
             },
           ]}
         >
@@ -33,26 +33,38 @@ alignItems: 'center',
           <View
             style={[
               styles.left,
-              { //width: isMobile ? '100%' : '60%',
-                width: isMobile ? '100%' : '45%',
-marginRight: isMobile ? 0 : 40,
+              { 
+                width: isMobile ? '100%' : '40%',
+                marginRight: isMobile ? 0 : 40,
                  marginBottom: isMobile ? 30 : 0, 
+                 alignItems: isMobile ? 'center' : 'flex-start',
+
                },
             ]}
           >
             <Text style={styles.logo}>VB</Text>
             {/* <Text style={styles.title} numberOfLines={2} adjustsFontSizeToFit>WELCOME BACK</Text> */}
             <Text
-  style={[
-    styles.title,
-    { fontSize: isMobile ? 28 : 42 }   // 🔥 control here
+         style={[
+         styles.title,
+         {
+          fontSize: isMobile ? 28 : 42,
+          textAlign: 'center',   
+    },
   ]}
 >
   WELCOME BACK
 </Text>
-            <Text style={styles.subtitle}>
-              A reliable platform for smarter financial decisions
-            </Text>
+            <Text
+  style={[
+    styles.subtitle,
+    {
+      textAlign: 'center',   
+    },
+  ]}
+>
+  A reliable platform for smarter financial decisions
+</Text>
           </View>
 
           {/* RIGHT */}
@@ -90,10 +102,10 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
   },
-
-  left: {
+left: {
   justifyContent: 'center',
-  padding: Dimensions.get('window').width < 768 ? 20 : 30,
+  alignItems: 'center',   // 🔥 KEY FIX
+  padding: 30,
 },
 
   logo: {
@@ -115,6 +127,8 @@ const styles = StyleSheet.create({
   subtitle: {
     color: '#ccc',
     fontSize: 14,
+    maxWidth: 400,
+  textAlign: 'center',
   },
 
   right: {

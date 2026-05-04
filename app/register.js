@@ -34,7 +34,7 @@ export default function Register() {
           <View
             style={[
               styles.left,
-              { width: isMobile ? '100%' : '60%',
+              { width: isMobile ? '100%' : '40%',
                  marginBottom: isMobile ? 30 : 0, 
                },
             ]}
@@ -43,12 +43,16 @@ export default function Register() {
             <Text
   style={[
     styles.title,
-    { fontSize: isMobile ? 28 : 42 }
+    { fontSize: isMobile ? 28 : 42,
+      textAlign: 'center',
+     }
   ]}
 >
   CREATE YOUR ACCOUNT
 </Text>
-            <Text style={styles.subtitle}>
+            <Text style={styles.subtitle,
+  { textAlign: 'center' } 
+            }>
               A reliable platform for smarter financial decisions
             </Text>
           </View>
@@ -63,7 +67,7 @@ export default function Register() {
             <View style={styles.card}>
               <Text style={styles.heading}>Register</Text>
 
-              {/* 🔥 STEP 1 */}
+              {/*  STEP 1 */}
               {step === 1 && (
                 <>
                   <TextInput placeholder="First Name" style={styles.input} />
@@ -80,7 +84,7 @@ export default function Register() {
                 </>
               )}
 
-              {/* 🔥 STEP 2 */}
+              {/* STEP 2 */}
               {step === 2 && (
                 <>
                   <TextInput
@@ -159,7 +163,8 @@ const styles = StyleSheet.create({
 
   left: {
   justifyContent: 'center',
-  padding: Dimensions.get('window').width < 768 ? 20 : 30,
+  alignItems: 'center', 
+  padding: 30,
 },
 
   logo: {
@@ -181,6 +186,8 @@ const styles = StyleSheet.create({
   subtitle: {
     color: '#ccc',
     fontSize: 14,
+    maxWidth: 400,
+  textAlign: 'center',
   },
 
   right: {
