@@ -80,10 +80,12 @@ export default function Login() {
               <TextInput placeholder="Email" style={styles.input} />
               <TextInput placeholder="Password" style={styles.input} />
 
-              <Pressable style={styles.button}>
-                <Text style={styles.buttonText} numberOfLines={1} adjustsFontSizeToFit>LOGIN</Text>
+              <Pressable
+                style={styles.button}
+                onPress={() => router.replace('/dashboard')} 
+              >
+                <Text style={styles.buttonText}>LOGIN</Text>
               </Pressable>
-
               <Pressable onPress={() => router.push('/register')}>
                 <Text style={styles.link}>
                   Don’t have account? Register
@@ -104,7 +106,7 @@ const styles = StyleSheet.create({
   },
   left: {
     justifyContent: 'center',
-    alignItems: 'center',   
+    alignItems: 'center',
     padding: 30,
   },
 
