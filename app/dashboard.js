@@ -9,23 +9,15 @@ import {
   TextInput,
 } from "react-native";
 
-const stocks = [
-  "SBIN",
-  "TCS",
-  "TATAPOWER",
-  "ITC",
-  "INFY",
-  "HDFCBANK",
-  "RELIANCE",
-];
+const stocks = ["SBIN","TCS","TATAPOWER","ITC","INFY","HDFCBANK","RELIANCE"];
 
-const DashboardScreen = () => {
+export default function DashboardScreen() {
   return (
     <View style={styles.container}>
-      
-      {/* LEFT SIDEBAR */}
+
+      {/* SIDEBAR */}
       <View style={styles.sidebar}>
-        <Text style={styles.title}>Default</Text>
+        <Text style={styles.section}>Default</Text>
 
         <TextInput
           placeholder="Search TCS, INFY, SBI"
@@ -48,33 +40,49 @@ const DashboardScreen = () => {
         />
       </View>
 
-      {/* MAIN CONTENT */}
+      {/* MAIN */}
       <ScrollView style={styles.main}>
 
-        {/* TOP BAR */}
-        <View style={styles.topBar}>
-          <View style={styles.tabs}>
-            <Text style={styles.activeTab}>HOME</Text>
-            <Text style={styles.tab}>ORDERS</Text>
-            <Text style={styles.tab}>FUNDS</Text>
+        {/* TOP HEADER */}
+        <View style={styles.header}>
+          <View style={styles.leftHeader}>
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>NIFTY 50</Text>
+              <Text style={styles.badgeValue}>24119.3</Text>
+            </View>
+
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>NIFTY BANK</Text>
+              <Text style={styles.badgeValue}>54878.5</Text>
+            </View>
           </View>
 
-          <View style={styles.rightTop}>
+          <View style={styles.rightHeader}>
             <TouchableOpacity style={styles.subscribe}>
-              <Text style={{ color: "#000", fontWeight: "bold" }}>
-                SUBSCRIBE
-              </Text>
+              <Text style={{ color: "#000", fontWeight: "bold" }}>SUBSCRIBE</Text>
             </TouchableOpacity>
-            <Text style={{ color: "#fff" }}>₹500.00</Text>
+
+            <Text style={styles.wallet}>₹500.00</Text>
+
+            <View style={styles.profile}>
+              <Text style={{ color: "#fff" }}>AK</Text>
+            </View>
           </View>
         </View>
 
+        {/* NAV */}
+        <View style={styles.nav}>
+          <Text style={styles.activeTab}>HOME</Text>
+          <Text style={styles.tab}>ORDERS</Text>
+          <Text style={styles.tab}>FUNDS</Text>
+        </View>
+
         {/* WELCOME */}
-        <Text style={styles.welcome}>Welcome Back, Anannya</Text>
+        <Text style={styles.title}>Welcome Back, Anannya</Text>
 
         {/* FUNDS */}
         <View style={styles.fundsRow}>
-          {["Available", "Blocked", "Used", "P/L"].map((item) => (
+          {["Available","Blocked","Used","P/L"].map((item)=>(
             <View key={item}>
               <Text style={styles.label}>{item}</Text>
               <Text style={styles.value}>₹0.00</Text>
@@ -82,191 +90,132 @@ const DashboardScreen = () => {
           ))}
         </View>
 
-        {/* ANALYTICS */}
-        <View style={styles.analytics}>
-          <Text style={styles.sectionTitle}>Trade Analytics</Text>
+        {/* ANALYTICS + PROFIT CARD */}
+        <View style={styles.analyticsRow}>
 
-          <View style={[styles.bar, { backgroundColor: "#1f3d2b" }]}>
-            <Text style={{ color: "lime" }}>Profit Trades</Text>
+          <View style={{flex:1}}>
+            <AnalyticsBar text="Profit Trades" color="#2ecc71"/>
+            <AnalyticsBar text="Loss Trades" color="#e74c3c"/>
+            <AnalyticsBar text="Breakeven" color="#f1c40f"/>
           </View>
 
-          <View style={[styles.bar, { backgroundColor: "#3d1f1f" }]}>
-            <Text style={{ color: "red" }}>Loss Trades</Text>
+          <View style={styles.profitCard}>
+            <Text style={{color:"#ccc"}}>Profitability</Text>
+            <Text style={{color:"#fff", fontSize:24}}>0%</Text>
+            <Text style={{color:"#888"}}>0/0 profitable</Text>
           </View>
 
-          <View style={[styles.bar, { backgroundColor: "#3d3a1f" }]}>
-            <Text style={{ color: "yellow" }}>Breakeven</Text>
-          </View>
         </View>
 
-        {/* CHART PLACEHOLDER */}
+        {/* CHART */}
         <View style={styles.chart}>
-          <Text style={{ color: "#777" }}>Chart Placeholder</Text>
+          <Text style={{color:"#777"}}>Chart Area</Text>
+        </View>
+
+        {/* LIVE FEED */}
+        <View style={styles.live}>
+          <Text style={{color:"#f1c40f"}}>● Live Feed: Connecting</Text>
         </View>
 
         {/* MOST TRADED */}
-        <Text style={styles.sectionTitle}>Most Traded Stocks</Text>
+        <Text style={styles.section}>Most Traded Stocks</Text>
 
         <View style={styles.grid}>
-          {stocks.map((item) => (
+          {stocks.map((item)=>(
             <View key={item} style={styles.card}>
-              <Text style={{ color: "#fff" }}>{item}</Text>
-              <Text style={{ color: "#aaa" }}>₹1000</Text>
-              <View style={styles.bsRow}>
-                <Text style={{ color: "green" }}>B</Text>
-                <Text style={{ color: "red" }}>S</Text>
+              <Text style={{color:"#fff"}}>{item}</Text>
+              <Text style={{color:"#aaa"}}>₹1000</Text>
+              <View style={styles.bs}>
+                <Text style={{color:"green"}}>B</Text>
+                <Text style={{color:"red"}}>S</Text>
               </View>
             </View>
           ))}
         </View>
 
         {/* TOP MOVERS */}
-        <Text style={styles.sectionTitle}>Top Movers</Text>
+        <Text style={styles.section}>Top Movers</Text>
 
-        {stocks.map((item, index) => (
-          <View key={index} style={styles.tableRow}>
-            <Text style={{ color: "#fff" }}>{item}</Text>
-            <Text style={{ color: "#fff" }}>1000</Text>
-            <Text style={{ color: "lime" }}>+0.5%</Text>
+        {stocks.map((item,i)=>(
+          <View key={i} style={styles.tableRow}>
+            <Text style={{color:"#fff"}}>{item}</Text>
+            <Text style={{color:"#fff"}}>1000</Text>
+            <Text style={{color:"#2ecc71"}}>+0.5%</Text>
           </View>
         ))}
 
       </ScrollView>
     </View>
   );
-};
+}
 
-export default DashboardScreen;
+const AnalyticsBar = ({text,color}) => (
+  <View style={[styles.bar,{backgroundColor:color+"22"}]}>
+    <Text style={{color}}>{text}</Text>
+  </View>
+);
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    flexDirection: "row",
-    backgroundColor: "#0B0F14",
-  },
+container:{flex:1,flexDirection:"row",backgroundColor:"#0B0F14"},
 
-  sidebar: {
-    width: 220,
-    backgroundColor: "#11161C",
-    padding: 10,
-  },
+sidebar:{width:240,backgroundColor:"#11161C",padding:10},
 
-  main: {
-    flex: 1,
-    padding: 10,
-  },
+main:{flex:1,padding:10},
 
-  title: {
-    color: "#fff",
-    marginBottom: 10,
-  },
+header:{flexDirection:"row",justifyContent:"space-between",marginBottom:10},
 
-  search: {
-    backgroundColor: "#1A2027",
-    borderRadius: 10,
-    padding: 8,
-    color: "#fff",
-    marginBottom: 10,
-  },
+leftHeader:{flexDirection:"row",gap:10},
 
-  stockItem: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingVertical: 10,
-  },
+badge:{backgroundColor:"#1A2027",padding:10,borderRadius:10},
 
-  stockName: { color: "#fff" },
-  stockSub: { color: "#888", fontSize: 12 },
-  stockPrice: { color: "#fff" },
+badgeText:{color:"#aaa",fontSize:12},
+badgeValue:{color:"#fff"},
 
-  topBar: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 10,
-  },
+rightHeader:{flexDirection:"row",alignItems:"center",gap:10},
 
-  tabs: { flexDirection: "row", gap: 15 },
+subscribe:{backgroundColor:"#FFC107",padding:8,borderRadius:10},
 
-  activeTab: { color: "#fff", fontWeight: "bold" },
-  tab: { color: "#888" },
+wallet:{color:"#fff"},
 
-  rightTop: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-  },
+profile:{width:40,height:40,borderRadius:20,backgroundColor:"#333",alignItems:"center",justifyContent:"center"},
 
-  subscribe: {
-    backgroundColor: "#FFC107",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 10,
-  },
+nav:{flexDirection:"row",gap:20,marginBottom:10},
 
-  welcome: {
-    color: "#fff",
-    fontSize: 20,
-    marginVertical: 10,
-  },
+activeTab:{color:"#fff",fontWeight:"bold"},
+tab:{color:"#888"},
 
-  fundsRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 15,
-  },
+title:{color:"#fff",fontSize:20,marginVertical:10},
 
-  label: { color: "#888" },
-  value: { color: "#fff" },
+fundsRow:{flexDirection:"row",justifyContent:"space-between"},
 
-  analytics: { marginBottom: 15 },
+label:{color:"#888"},
+value:{color:"#fff"},
 
-  sectionTitle: {
-    color: "#fff",
-    fontSize: 16,
-    marginVertical: 10,
-  },
+analyticsRow:{flexDirection:"row",gap:10,marginVertical:15},
 
-  bar: {
-    height: 40,
-    borderRadius: 20,
-    justifyContent: "center",
-    paddingHorizontal: 10,
-    marginVertical: 5,
-  },
+bar:{height:40,borderRadius:20,justifyContent:"center",paddingHorizontal:10,marginBottom:8},
 
-  chart: {
-    height: 200,
-    backgroundColor: "#151A20",
-    borderRadius: 12,
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 20,
-  },
+profitCard:{width:150,backgroundColor:"#1A2027",borderRadius:12,padding:10,justifyContent:"center"},
 
-  grid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 10,
-  },
+chart:{height:200,backgroundColor:"#151A20",borderRadius:12,justifyContent:"center",alignItems:"center"},
 
-  card: {
-    width: "30%",
-    backgroundColor: "#1A2027",
-    padding: 10,
-    borderRadius: 12,
-    marginBottom: 10,
-  },
+live:{marginVertical:10},
 
-  bsRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
+section:{color:"#fff",fontSize:16,marginVertical:10},
 
-  tableRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingVertical: 10,
-    borderBottomWidth: 0.5,
-    borderBottomColor: "#333",
-  },
+grid:{flexDirection:"row",flexWrap:"wrap",gap:10},
+
+card:{width:"18%",backgroundColor:"#1A2027",padding:10,borderRadius:12},
+
+bs:{flexDirection:"row",justifyContent:"space-between"},
+
+tableRow:{flexDirection:"row",justifyContent:"space-between",paddingVertical:10,borderBottomWidth:0.5,borderColor:"#333"},
+
+search:{backgroundColor:"#1A2027",padding:8,borderRadius:10,color:"#fff",marginBottom:10},
+
+stockItem:{flexDirection:"row",justifyContent:"space-between",paddingVertical:10},
+
+stockName:{color:"#fff"},
+stockSub:{color:"#888",fontSize:12},
+stockPrice:{color:"#fff"},
 });
