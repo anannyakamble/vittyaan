@@ -13,6 +13,7 @@ import {
 } from "react-native";
 
 import { LinearGradient } from "expo-linear-gradient";
+import { LineChart } from "react-native-chart-kit";
 
 import {
     Feather,
@@ -833,6 +834,175 @@ export default function Dashboard() {
                         ))}
                     </View>
 
+                    {/* MARKET INDEX GRAPH */}
+<View
+  style={[
+    styles.topMoverCard,
+    {
+      backgroundColor: card,
+      marginTop: 30,
+    },
+  ]}
+>
+  <View
+    style={{
+      flexDirection: isMobile ? "column" : "row",
+      justifyContent: "space-between",
+      alignItems: isMobile ? "flex-start" : "center",
+      marginBottom: 20,
+      gap: 14,
+    }}
+  >
+    <View>
+      <Text
+        style={{
+          color: subText,
+          fontSize: 12,
+          letterSpacing: 1,
+        }}
+      >
+        MARKET INDEX
+      </Text>
+
+      <Text
+        style={{
+          color: text,
+          fontSize: isMobile ? 34 : 52,
+          fontWeight: "800",
+          marginTop: 4,
+        }}
+      >
+        NIFTY 50
+      </Text>
+
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          marginTop: 10,
+          flexWrap: "wrap",
+        }}
+      >
+        <Text
+          style={{
+            color: text,
+            fontSize: isMobile ? 22 : 34,
+            fontWeight: "700",
+          }}
+        >
+          24,336.15
+        </Text>
+
+        <Text
+          style={{
+            color: "#22c55e",
+            fontSize: isMobile ? 18 : 28,
+            fontWeight: "700",
+            marginLeft: 10,
+          }}
+        >
+          +2.05 (+0.01%)
+        </Text>
+      </View>
+    </View>
+
+    <View
+      style={{
+        flexDirection: "row",
+        gap: 10,
+        flexWrap: "wrap",
+      }}
+    >
+      {["1 Day", "5 Days", "1 Month", "Ytd"].map(
+        (item, i) => (
+          <TouchableOpacity
+            key={i}
+            style={{
+              borderWidth: 1,
+              borderColor:
+                i === 2
+                  ? "#ffffff"
+                  : "rgba(255,255,255,0.1)",
+              paddingHorizontal: 16,
+              paddingVertical: 10,
+              borderRadius: 999,
+              backgroundColor:
+                i === 2
+                  ? "rgba(255,255,255,0.08)"
+                  : "transparent",
+            }}
+          >
+            <Text
+              style={{
+                color: text,
+                fontWeight: "600",
+              }}
+            >
+              {item}
+            </Text>
+          </TouchableOpacity>
+        )
+      )}
+    </View>
+  </View>
+
+  {/* GRAPH */}
+  <View
+    style={[
+      styles.chartWrapper,
+      {
+        backgroundColor: darkMode
+          ? "#111111"
+          : "#f8fafc",
+      },
+    ]}
+  >
+    <LineChart
+      data={{
+        labels: ["5/7", "5/7", "5/7", "5/7"],
+        datasets: [
+          {
+            data: [24330, 24290, 24360, 24336],
+          },
+        ],
+      }}
+      width={
+        isMobile
+          ? width - 70
+          : width - 500
+      }
+      height={isMobile ? 220 : 320}
+      bezier
+      withDots
+      withInnerLines
+      withOuterLines={false}
+      chartConfig={{
+        backgroundGradientFrom: darkMode
+          ? "#111111"
+          : "#ffffff",
+
+        backgroundGradientTo: darkMode
+          ? "#111111"
+          : "#ffffff",
+
+        decimalPlaces: 0,
+
+        color: () => "#4ade80",
+
+        labelColor: () =>
+          darkMode ? "#9ca3af" : "#6b7280",
+
+        propsForDots: {
+          r: "5",
+          strokeWidth: "2",
+          stroke: "#4ade80",
+        },
+      }}
+      style={styles.chart}
+    />
+  </View>
+</View>
+
                     {/* TOP MOVERS */}
                     <View
                         style={[
@@ -864,17 +1034,17 @@ export default function Dashboard() {
                                 </Text>
 
                                 {gainers.map((item, i) => (
-                                   <View
-  key={i}
-  style={[
-    styles.mobileMoverRow,
-    {
-      backgroundColor: darkMode
-        ? "#111827"
-        : "#f9fafb",
-    },
-  ]}
->
+                                    <View
+                                        key={i}
+                                        style={[
+                                            styles.mobileMoverRow,
+                                            {
+                                                backgroundColor: darkMode
+                                                    ? "#111827"
+                                                    : "#f9fafb",
+                                            },
+                                        ]}
+                                    >
                                         <View>
                                             <Text
                                                 style={[
@@ -956,15 +1126,15 @@ export default function Dashboard() {
                         ) : (
                             <>
                                 <View
-  style={[
-    styles.tableHeader,
-    {
-      backgroundColor: darkMode
-        ? "#1f2937"
-        : "#e5e7eb",
-    },
-  ]}
->
+                                    style={[
+                                        styles.tableHeader,
+                                        {
+                                            backgroundColor: darkMode
+                                                ? "#1f2937"
+                                                : "#e5e7eb",
+                                        },
+                                    ]}
+                                >
                                     {[
                                         "STOCK",
                                         "LTP",
@@ -1058,318 +1228,332 @@ export default function Dashboard() {
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
+  container: {
+    flex: 1,
+    
 
-    layout: {
-        flex: 1,
-    },
+  },
 
-    sidebar: {
-        width: 320,
-        padding: 20,
-    },
+  layout: {
+    flex: 1,
+    flexDirection: isMobile ? "column" : "row",
+  },
 
-    mobileSidebar: {
-        width: 280,
-        height: "100%",
-        padding: 20,
-    },
+  sidebar: {
+    width: 320,
+    padding: 20,
+  },
 
-    modalOverlay: {
-        flex: 1,
-        flexDirection: "row",
-    },
+  mobileSidebar: {
+    width: "80%",
+    height: "100%",
+    padding: 10,
+  },
 
-    remainingOverlay: {
-        flex: 1,
-        backgroundColor:
-            "rgba(0,0,0,0.4)",
-    },
+  modalOverlay: {
+    flex: 1,
+    flexDirection: "row",
+  },
 
-    sidebarHeader: {
-        flexDirection: "row",
-        justifyContent:
-            "space-between",
+  remainingOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.45)",
+  },
 
-        alignItems: "center",
-        marginBottom: 20,
-    },
+  sidebarHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 20,
+  },
 
-    sidebarTitle: {
-        fontSize: 28,
-        fontWeight: "700",
-    },
+  sidebarTitle: {
+    fontSize: isMobile ? 22 : 28,
+    fontWeight: "800",
+  },
 
-    searchInput: {
-        padding: 14,
-        borderRadius: 16,
-        marginBottom: 24,
-    },
+  searchInput: {
+    padding: isMobile ? 12 : 14,
+    borderRadius: 16,
+    marginBottom: 24,
+    fontSize: isMobile ? 15 : 16,
+  },
 
-    stockRow: {
-        flexDirection: "row",
-        justifyContent:
-            "space-between",
+  stockRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: isMobile ? 20 : 24,
+  },
 
-        marginBottom: 24,
-    },
+  stockName: {
+    fontWeight: "700",
+    fontSize: isMobile ? 16 : 18,
+  },
 
-    stockName: {
-        fontWeight: "700",
-        fontSize: 18,
-    },
+  stockType: {
+    marginTop: 4,
+    fontSize: 12,
+  },
 
-    stockType: {
-        marginTop: 4,
-    },
+  stockPrice: {
+    fontSize: isMobile ? 16 : 18,
+  },
 
-    stockPrice: {
-        fontSize: 18,
-    },
+  content: {
+    flex: 1,
+    width: "100%",
+    paddingHorizontal: isMobile ? 10 : 24,
+    paddingTop: isMobile ? 10 : 24,
+  },
 
-    content: {
-        flex: 1,
-        padding: 20,
-    },
+  topbar: {
+    justifyContent: "center",
+    alignItems: "isMobile" ? "flex-start" : "center",
+    gap: isMobile ? 18 : 20,
+    width: "100%",
+  },
 
-    topbar: {
-        justifyContent:
-            "space-between",
+  marketRow: {
+    flexDirection: "row",
+    gap: isMobile ? 10 : 16,
+    flexWrap: "wrap",
+    justifyContent: "center",
+  },
 
-        alignItems: "center",
-        gap: 20,
-    },
+  marketCard: {
+    paddingVertical: isMobile ? 12 : 16,
+    paddingHorizontal: isMobile ? 16 : 20,
+    borderRadius: 18,
+    minWidth: isMobile ? 120 : 160,
+  },
 
-    marketRow: {
-        flexDirection: "row",
-        gap: 16,
-    },
+  marketTitle: {
+    fontSize: isMobile ? 11 : 12,
+  },
 
-    marketCard: {
-        padding: 16,
-        borderRadius: 18,
-    },
+  marketValue: {
+    fontSize: isMobile ? 16 : 20,
+    fontWeight: "700",
+    marginTop: 4,
+  },
 
-    marketTitle: {
-        fontSize: 12,
-    },
+  navRow: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: isMobile ? 24 : 24,
+    marginTop: isMobile ? 8 : 0,
+    flexWrap: "wrap",
+  },
 
-    marketValue: {
-        fontSize: 20,
-        fontWeight: "700",
-        marginTop: 4,
-    },
+  navText: {
+    fontWeight: "700",
+    fontSize: isMobile ? 14 : 15,
+  },
 
-    navRow: {
-        flexDirection: "row",
-        gap: 24,
-        flexWrap: "wrap",
-  justifyContent: "center",
-    },
+  iconRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: isMobile ? 18 : 16,
+    marginTop: isMobile ? 6 : 0,
+  },
 
-    navText: {
-        fontWeight: "700",
-        fontSize: 15,
-    },
+  iconBtn: {
+    padding: isMobile ? 10 : 12,
+    borderRadius: 14,
+  },
 
-    iconRow: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: 16,
-    },
+  welcome: {
+    fontSize: isMobile ? 22 : 56,
+    lineHeight: isMobile ? 30 : 64,
+    fontWeight: "800",
+    marginTop: isMobile ? 24 : 40,
+  },
 
-    iconBtn: {
-        padding: 12,
-        borderRadius: 14,
-    },
+  fundWrapper: {
+    gap: isMobile ? 14 : 20,
+    marginTop: isMobile ? 20 : 30,
+  },
 
-    welcome: {
-        fontSize: isMobile ? 34 : 60,
-        fontWeight: "800",
-        marginTop: 40,
-    },
+  fundCard: {
+    flex: 1,
+    minHeight: isMobile ? 110 : 150,
+    padding: isMobile ? 18 : 24,
+    borderRadius: 24,
+    width: isMobile ? "100%" : undefined,
+  },
 
-    fundWrapper: {
-        gap: 20,
-        marginTop: 30,
-    },
+  fundTitle: {
+    fontSize: isMobile ? 15 : 16,
+  },
 
-    fundCard: {
-        flex: 1,
-        padding: 24,
-        borderRadius: 24,
-        width: isMobile ? "100%" : undefined,
-    },
+  fundValue: {
+    fontSize: isMobile ? 18 : 34,
+    fontWeight: "800",
+    marginTop: 8,
+  },
 
-    fundTitle: {
-        fontSize: 16,
-    },
+  sectionTitle: {
+    fontSize: isMobile ? 20 : 28,
+    fontWeight: "700",
+    marginTop: isMobile ? 28 : 40,
+    marginBottom: 20,
+  },
 
-    fundValue: {
-        fontSize: 34,
-        fontWeight: "800",
-        marginTop: 14,
-    },
+  analyticsWrapper: {
+    gap: isMobile ? 12 : 20,
+  },
 
-    sectionTitle: {
-        fontSize: 28,
-        fontWeight: "700",
-        marginTop: 40,
-        marginBottom: 20,
-    },
+  analyticsCard: {
+    flex: 1,
+    padding: isMobile ? 16 : 24,
+    minHeight: isMobile ? 130 : 180,
+    borderRadius: 24,
+  },
 
-    analyticsWrapper: {
-        gap: 18,
-    },
+  analyticsPercent: {
+    color: "#fff",
+    fontSize: isMobile ? 30 : 42,
+    fontWeight: "800",
+  },
 
-    analyticsCard: {
-        flex: 1,
-        padding: 24,
-        borderRadius: 24,
-    },
+  analyticsTitle: {
+    color: "#fff",
+    fontSize: isMobile ? 16 : 18,
+    marginTop: 10,
+    fontWeight: "700",
+  },
 
-    analyticsPercent: {
-        color: "#fff",
+  progressBg: {
+    height: 10,
+    backgroundColor: "rgba(255,255,255,0.1)",
+    borderRadius: 20,
+    marginTop: 18,
+  },
 
-        fontSize: 42,
-        fontWeight: "800",
-    },
+  progressFill: {
+    height: "100%",
+    borderRadius: 20,
+  },
 
-    analyticsTitle: {
-        color: "#fff",
-        fontSize: 18,
-        marginTop: 10,
-        fontWeight: "700",
-    },
+  topMoverCard: {
+    marginTop: 30,
+    padding: isMobile ? 14 : 20,
+    borderRadius: 24,
+    overflow: "hidden",
+  },
 
-    progressBg: {
-        height: 10,
-        backgroundColor:
-            "rgba(255,255,255,0.1)",
+  gainerTitle: {
+    color: "#22c55e",
+    fontSize: isMobile ? 16 : 18,
+    fontWeight: "700",
+    marginBottom: 14,
+    marginTop: 10,
+  },
 
-        borderRadius: 20,
-        marginTop: 18,
-    },
+  mobileStock: {
+    fontSize: 18,
+    fontWeight: "700",
+  },
 
-    progressFill: {
-        height: "100%",
-        borderRadius: 20,
-    },
+  tableHeader: {
+    flexDirection: "row",
+    backgroundColor: "#1f2937",
+    paddingVertical: isMobile ? 10 : 14,
+    borderRadius: 12,
+  },
 
-    topMoverCard: {
-        marginTop: 40,
-        padding: 20,
-        borderRadius: 24,
-    },
+  tableHead: {
+    flex: 1,
+    color: "#9ca3af",
+    textAlign: "center",
+    fontWeight: "700",
+    fontSize: isMobile ? 10 : 14,
+  },
 
-    gainerTitle: {
-        color: "#22c55e",
-        fontSize: 18,
-        fontWeight: "700",
-        marginBottom: 14,
-        marginTop: 10,
-    },
+  tableRow: {
+    flexDirection: "row",
+    paddingVertical: isMobile ? 12 : 18,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(255,255,255,0.05)",
+  },
 
-    mobileMoverRow: {
-  flexDirection: "row",
-  justifyContent: "space-between",
-  padding: 16,
-  borderRadius: 18,
-  marginBottom: 12,
+  tableCell: {
+    flex: 1,
+    color: "#fff",
+    textAlign: "center",
+    fontSize: isMobile ? 10 : 14,
+  },
+
+  profileOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.4)",
+  },
+
+  profileModal: {
+    position: "absolute",
+    right: isMobile ? 10 : 20,
+    top: isMobile ? 80 : 70,
+    width: isMobile ? 260 : 340,
+    borderRadius: 24,
+    padding: isMobile ? 18 : 24,
+    zIndex: 999,
+    elevation: 20,
+  },
+
+  profileName: {
+    fontSize: isMobile ? 20 : 24,
+    fontWeight: "700",
+  },
+
+  profileMail: {
+    marginTop: 6,
+    marginBottom: 20,
+    fontSize: isMobile ? 13 : 15,
+  },
+
+  profileItem: {
+    paddingVertical: 12,
+  },
+
+  profileText: {
+    fontSize: isMobile ? 14 : 16,
+  },
+
+  logoutBtn: {
+    marginTop: 20,
+    backgroundColor: "#ef4444",
+    padding: 16,
+    borderRadius: 16,
+    alignItems: "center",
+  },
+
+  logoutText: {
+    color: "#fff",
+    fontWeight: "700",
+  },
+
+  watchlistModal: {
+    position: "absolute",
+    top: isMobile ? 100 : 170,
+    left: isMobile ? 10 : 20,
+    width: isMobile ? "92%" : 460,
+    borderRadius: 24,
+    zIndex: 999,
+    elevation: 20,
+  },
+  chartWrapper: {
+  marginTop: 24,
+  borderRadius: 24,
+  overflow: "hidden",
+  padding: isMobile ? 12 : 20,
+  height: isMobile ? 260 : 420,
+  width: "100%",
 },
-    mobileStock: {
-        fontSize: 18,
-        fontWeight: "700",
-    },
 
-    tableHeader: {
-        flexDirection: "row",
-        backgroundColor: "#1f2937",
-        paddingVertical: 14,
-        borderRadius: 12,
-    },
-
-    tableHead: {
-        flex: 1,
-        color: "#9ca3af",
-        textAlign: "center",
-        fontWeight: "700",
-    },
-
-    tableRow: {
-        flexDirection: "row",
-        paddingVertical: 18,
-        borderBottomWidth: 1,
-        borderBottomColor:
-            "rgba(255,255,255,0.05)",
-    },
-
-    tableCell: {
-        flex: 1,
-        color: "#fff",
-
-        textAlign: "center",
-    },
-
-    profileOverlay: {
-        flex: 1,
-        backgroundColor:
-            "rgba(0,0,0,0.4)",
-    },
-
-    profileModal: {
-        position: "absolute",
-        right: 20,
-        top: isMobile ? 90 : 70,
-        width: isMobile ? 280 : 340,
-        borderRadius: 24,
-        padding: 24,
-
-        zIndex: 999,
-        elevation: 20,
-    },
-
-    profileName: {
-        fontSize: 24,
-        fontWeight: "700",
-    },
-
-    profileMail: {
-        marginTop: 6,
-        marginBottom: 20,
-    },
-
-    profileItem: {
-        paddingVertical: 14,
-    },
-
-    profileText: {
-        fontSize: 16,
-    },
-
-    logoutBtn: {
-        marginTop: 20,
-        backgroundColor: "#ef4444",
-        padding: 16,
-        borderRadius: 16,
-        alignItems: "center",
-    },
-
-    logoutText: {
-        color: "#fff",
-
-        fontWeight: "700",
-    },
-    watchlistModal: {
-        position: "absolute",
-       top: isMobile ? 120 : 170,
-  left: isMobile ? 10 : 20,
-  width: isMobile ? "92%" : 460,
-        borderRadius: 24,
-        zIndex: 999,
-        elevation: 20,
-    },
-
+chart: {
+  borderRadius: 20,
+  alignSelf: "center",
+},
 });
