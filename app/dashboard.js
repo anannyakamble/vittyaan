@@ -1005,220 +1005,234 @@ export default function Dashboard() {
 
                     {/* TOP MOVERS */}
                     <View
-                        style={[
-                            styles.topMoverCard,
-                            {
-                                backgroundColor: card,
-                            },
-                        ]}
-                    >
-                        <Text
-                            style={[
-                                styles.sectionTitle,
-                                {
-                                    color: text,
-                                    marginTop: 0,
-                                },
-                            ]}
-                        >
-                            Top Movers
-                        </Text>
+  style={[
+    styles.topMoverCard,
+    { backgroundColor: card }
+  ]}
+>
+  {/* TOP BAR */}
+  <View
+    style={{
+      flexDirection: isMobile ? "column" : "row",
+      justifyContent: "space-between",
+      alignItems: isMobile ? "flex-start" : "center",
+      marginBottom: 20,
+      gap: 12,
+    }}
+  >
+    <Text
+      style={{
+        color: text,
+        fontSize: isMobile ? 28 : 36,
+        fontWeight: "800",
+      }}
+    >
+      Top Movers
+    </Text>
 
-                        {/* MOBILE */}
-                        {isMobile ? (
-                            <>
-                                <Text
-                                    style={styles.gainerTitle}
-                                >
-                                    Top Gainers
-                                </Text>
+    <View
+      style={{
+        flexDirection: "row",
+        gap: 12,
+        alignItems: "center",
+      }}
+    >
+      <View
+        style={{
+          backgroundColor: darkMode
+            ? "#1f2937"
+            : "#e5e7eb",
+          paddingHorizontal: 16,
+          paddingVertical: 10,
+          borderRadius: 14,
+        }}
+      >
+        <Text
+          style={{
+            color: text,
+            fontWeight: "600",
+          }}
+        >
+          Last Updated - 07 May 2026
+        </Text>
+      </View>
 
-                                {gainers.map((item, i) => (
-                                    <View
-                                        key={i}
-                                        style={[
-                                            styles.mobileMoverRow,
-                                            {
-                                                backgroundColor: darkMode
-                                                    ? "#111827"
-                                                    : "#f9fafb",
-                                            },
-                                        ]}
-                                    >
-                                        <View>
-                                            <Text
-                                                style={[
-                                                    styles.mobileStock,
-                                                    { color: text },
-                                                ]}
-                                            >
-                                                {item.stock}
-                                            </Text>
+      <View
+        style={{
+          borderWidth: 1,
+          borderColor: "rgba(255,255,255,0.1)",
+          paddingHorizontal: 18,
+          paddingVertical: 10,
+          borderRadius: 14,
+        }}
+      >
+        <Text
+          style={{
+            color: text,
+            fontWeight: "600",
+          }}
+        >
+          NSE ▼
+        </Text>
+      </View>
+    </View>
+  </View>
 
-                                            <Text
-                                                style={{
-                                                    color: subText,
-                                                }}
-                                            >
-                                                ₹{item.ltp}
-                                            </Text>
-                                        </View>
+  {/* GAINER / LOSER LABELS */}
+  <View
+    style={{
+      flexDirection: "row",
+      justifyContent: "space-between",
+      marginBottom: 14,
+    }}
+  >
+    <View
+      style={{
+        backgroundColor: "rgba(34,197,94,0.12)",
+        paddingHorizontal: 14,
+        paddingVertical: 8,
+        borderRadius: 10,
+      }}
+    >
+      <Text
+        style={{
+          color: "#22c55e",
+          fontWeight: "700",
+          fontSize: 16,
+        }}
+      >
+        Top Gainers
+      </Text>
+    </View>
 
-                                        <Text
-                                            style={{
-                                                color: "#22c55e",
-                                                fontWeight: "700",
-                                            }}
-                                        >
-                                            {item.change}
-                                        </Text>
-                                    </View>
-                                ))}
+    <View
+      style={{
+        backgroundColor: "rgba(239,68,68,0.12)",
+        paddingHorizontal: 14,
+        paddingVertical: 8,
+        borderRadius: 10,
+      }}
+    >
+      <Text
+        style={{
+          color: "#ef4444",
+          fontWeight: "700",
+          fontSize: 16,
+        }}
+      >
+        Top Losers
+      </Text>
+    </View>
+  </View>
 
-                                <Text
-                                    style={[
-                                        styles.gainerTitle,
-                                        {
-                                            color: "#ef4444",
-                                        },
-                                    ]}
-                                >
-                                    Top Losers
-                                </Text>
+  {/* TABLE */}
+  <ScrollView
+    horizontal
+    contentContainerStyle={{
+    flexGrow: 1,
+  }}
+    showsHorizontalScrollIndicator={false}
+  >
+    <View
+      style={{
+        minWidth: isMobile ? 1000 : "undefined",
+        width: "100%",
+      }}
+    >
+      {/* HEADER */}
+      <View
+        style={[
+          styles.tableHeader,
+          {
+            backgroundColor: darkMode
+              ? "#1f2937"
+              : "#e5e7eb",
+          },
+        ]}
+      >
+        {[
+          "STOCK",
+          "LTP",
+          "CHANGE",
+          "OPEN",
+          "HIGH",
+          "STOCK",
+          "LTP",
+          "CHANGE",
+          "OPEN",
+          "HIGH",
+        ].map((item, i) => (
+          <Text
+            key={i}
+            style={styles.tableHead}
+          >
+            {item}
+          </Text>
+        ))}
+      </View>
 
-                                {losers.map((item, i) => (
-                                    <View
-                                        key={i}
-                                        style={
-                                            styles.mobileMoverRow
-                                        }
-                                    >
-                                        <View>
-                                            <Text
-                                                style={[
-                                                    styles.mobileStock,
-                                                    { color: text },
-                                                ]}
-                                            >
-                                                {item.stock}
-                                            </Text>
+      {/* ROWS */}
+      {gainers.map((item, i) => (
+        <View
+          key={i}
+          style={styles.tableRow}
+        >
+          {/* LEFT */}
+          <Text style={[styles.tableCell, { color: text }]}>
+            {item.stock}
+          </Text>
 
-                                            <Text
-                                                style={{
-                                                    color: subText,
-                                                }}
-                                            >
-                                                ₹{item.ltp}
-                                            </Text>
-                                        </View>
+          <Text style={[styles.tableCell, { color: text }]}>
+            ₹{item.ltp}
+          </Text>
 
-                                        <Text
-                                            style={{
-                                                color: "#ef4444",
-                                                fontWeight: "700",
-                                            }}
-                                        >
-                                            {item.change}
-                                        </Text>
-                                    </View>
-                                ))}
-                            </>
-                        ) : (
-                            <>
-                                <View
-                                    style={[
-                                        styles.tableHeader,
-                                        {
-                                            backgroundColor: darkMode
-                                                ? "#1f2937"
-                                                : "#e5e7eb",
-                                        },
-                                    ]}
-                                >
-                                    {[
-                                        "STOCK",
-                                        "LTP",
-                                        "CHANGE",
-                                        "STOCK",
-                                        "LTP",
-                                        "CHANGE",
-                                    ].map((item, i) => (
-                                        <Text
-                                            key={i}
-                                            style={styles.tableHead}
-                                        >
-                                            {item}
-                                        </Text>
-                                    ))}
-                                </View>
+          <Text
+            style={[
+              styles.tableCell,
+              { color: "#22c55e" },
+            ]}
+          >
+            {item.change}
+          </Text>
 
-                                {gainers.map((item, i) => (
-                                    <View
-                                        key={i}
-                                        style={styles.tableRow}
-                                    >
-                                        <Text
-                                            style={[
-                                                styles.tableCell,
-                                                { color: text },
-                                            ]}
-                                        >
-                                            {item.stock}
-                                        </Text>
+          <Text style={[styles.tableCell, { color: text }]}>
+            4320
+          </Text>
 
-                                        <Text
-                                            style={[
-                                                styles.tableCell,
-                                                { color: text },
-                                            ]}
-                                        >
-                                            ₹{item.ltp}
-                                        </Text>
+          <Text style={[styles.tableCell, { color: text }]}>
+            4393
+          </Text>
 
-                                        <Text
-                                            style={[
-                                                styles.tableCell,
-                                                {
-                                                    color: "#22c55e",
-                                                },
-                                            ]}
-                                        >
-                                            {item.change}
-                                        </Text>
+          {/* RIGHT */}
+          <Text style={[styles.tableCell, { color: text }]}>
+            {losers[i].stock}
+          </Text>
 
-                                        <Text
-                                            style={[
-                                                styles.tableCell,
-                                                { color: text },
-                                            ]}
-                                        >
-                                            {losers[i].stock}
-                                        </Text>
+          <Text style={[styles.tableCell, { color: text }]}>
+            ₹{losers[i].ltp}
+          </Text>
 
-                                        <Text
-                                            style={[
-                                                styles.tableCell,
-                                                { color: text },
-                                            ]}
-                                        >
-                                            ₹{losers[i].ltp}
-                                        </Text>
+          <Text
+            style={[
+              styles.tableCell,
+              { color: "#ef4444" },
+            ]}
+          >
+            {losers[i].change}
+          </Text>
 
-                                        <Text
-                                            style={[
-                                                styles.tableCell,
-                                                {
-                                                    color: "#ef4444",
-                                                },
-                                            ]}
-                                        >
-                                            {losers[i].change}
-                                        </Text>
-                                    </View>
-                                ))}
-                            </>
-                        )}
-                    </View>
+          <Text style={[styles.tableCell, { color: text }]}>
+            3974
+          </Text>
+
+          <Text style={[styles.tableCell, { color: text }]}>
+            3974
+          </Text>
+        </View>
+      ))}
+    </View>
+  </ScrollView>
+</View>
 
                     <View style={{ height: 60 }} />
                 </ScrollView>
@@ -1438,6 +1452,8 @@ const styles = StyleSheet.create({
   },
 
   topMoverCard: {
+    width: "100%",
+    alighnSelf: "stretch",
     marginTop: 30,
     padding: isMobile ? 14 : 20,
     borderRadius: 24,
@@ -1458,6 +1474,8 @@ const styles = StyleSheet.create({
   },
 
   tableHeader: {
+    flex: 1,
+
     flexDirection: "row",
     backgroundColor: "#1f2937",
     paddingVertical: isMobile ? 10 : 14,
@@ -1465,26 +1483,30 @@ const styles = StyleSheet.create({
   },
 
   tableHead: {
-    flex: 1,
+   flex: 1,
+    width: 90,
     color: "#9ca3af",
     textAlign: "center",
     fontWeight: "700",
-    fontSize: isMobile ? 10 : 14,
+    fontSize: isMobile ? 11 : 14,
   },
 
   tableRow: {
-    flexDirection: "row",
-    paddingVertical: isMobile ? 12 : 18,
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(255,255,255,0.05)",
-  },
+    width: "100%",
+  flexDirection: "row",
+  paddingVertical: isMobile ? 14 : 18,
+  borderBottomWidth: 1,
+  borderBottomColor: "rgba(255,255,255,0.06)",
+  alignItems: "center",
+},
 
   tableCell: {
     flex: 1,
-    color: "#fff",
-    textAlign: "center",
-    fontSize: isMobile ? 10 : 14,
-  },
+  width: 90,
+  textAlign: "center",
+  fontSize: isMobile ? 11 : 14,
+  fontWeight: "600",
+},
 
   profileOverlay: {
     flex: 1,
