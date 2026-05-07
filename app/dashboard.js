@@ -1,57 +1,39 @@
 // app/dashboard.js
 
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import {
     View,
     Text,
     StyleSheet,
     ScrollView,
-    Dimensions,
+    TouchableOpacity,
     TextInput,
-    Pressable,
-    Animated,
+    Dimensions,
+    Modal,
 } from "react-native";
 
-import { useRouter } from "expo-router";
-import { MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import { BlurView } from "expo-blur";
-import { LineChart } from "react-native-chart-kit";
+
+import {
+    Feather,
+    Ionicons,
+    MaterialIcons,
+    FontAwesome5,
+} from "@expo/vector-icons";
+
+import { useRouter } from "expo-router";
 
 const { width } = Dimensions.get("window");
 const isMobile = width < 768;
 
-const sidebarStocks = [
-    "SBIN",
-    "TCS",
-    "INFY",
-    "RELIANCE",
-    "ITC",
-    "HDFCBANK",
-    "AXISBANK",
-];
-
-const tradedStocks = [
-    "NIFTY 50",
-    "BANK NIFTY",
-    "SBIN",
-    "TCS",
-    "INFY",
-    "RELIANCE",
-    "ITC",
-    "AXISBANK",
-];
-
 export default function Dashboard() {
     const router = useRouter();
 
-    const [darkMode, setDarkMode] =
-        useState(true);
-
-    const [showSidebar, setShowSidebar] =
+    const [darkMode, setDarkMode] = useState(true);
+    const [sidebarVisible, setSidebarVisible] =
         useState(false);
 
-    const [showProfileMenu, setShowProfileMenu] =
+    const [profileVisible, setProfileVisible] =
         useState(false);
 
     const [watchlistName, setWatchlistName] =
@@ -60,1093 +42,1028 @@ export default function Dashboard() {
     const [editingWatchlist, setEditingWatchlist] =
         useState(false);
 
-    const [tempName, setTempName] =
-        useState("Default");
+    const [watchlistModal, setWatchlistModal] =
+        useState(false);
 
-    const scaleAnim = useRef(
-        new Animated.Value(1)
-    ).current;
+    const bg = darkMode
+        ? "#050816"
+        : "#f4f6f9";
+    const card = darkMode
+        ? "#0f172a"
+        : "#ffffff";
+    const text = darkMode ? "#ffffff" : "#111827";
+    const subText = darkMode
+        ? "#9ca3af"
+        : "#6b7280";
+
+    const stocks = [
+        "SBIN",
+        "TCS",
+        "TATAPOWER",
+        "ITC",
+        "INFY",
+        "HDFCBANK",
+        "RELIANCE",
+    ];
+
+    const gainers = [
+        {
+            stock: "INDIGO",
+            ltp: "4374",
+            change: "+3.2%",
+        },
+
+        {
+            stock: "TRENT",
+            ltp: "4249",
+            change: "+2.7%",
+        },
+
+        {
+            stock: "CIPLA",
+            ltp: "1362",
+            change: "+2.1%",
+        },
+
+        {
+            stock: "ASIANPAINT",
+            ltp: "2480",
+            change: "+2%",
+        },
+    ];
+
+    const losers = [
+        {
+            stock: "LT",
+            ltp: "3923",
+            change: "-3.2%",
+        },
+
+        {
+            stock: "ONGC",
+            ltp: "285",
+            change: "-1.6%",
+        },
+
+        {
+            stock: "RELIANCE",
+            ltp: "1446",
+            change: "-1.2%",
+        },
+
+        {
+            stock: "TITAN",
+            ltp: "4336",
+            change: "-0.8%",
+        },
+    ];
 
     return (
-        <LinearGradient
-            colors={
-                darkMode
-                    ? [
-                        "#070B14",
-                        "#0B1220",
-                        "#111827",
-                    ]
-                    : [
-                        "#f8fafc",
-                        "#e2e8f0",
-                        "#cbd5e1",
-                    ]
-            }
-            style={styles.container}
+        <View
+            style={[
+                styles.container,
+                { backgroundColor: bg },
+            ]}
         >
-            {/* MOBILE OVERLAY */}
-            {showSidebar && isMobile && (
-                <Pressable
-                    style={styles.overlay}
-                    onPress={() =>
-                        setShowSidebar(false)
-                    }
-                />
-            )}
-
-            {/* SIDEBAR */}
-            {(!isMobile || showSidebar) && (
-                <BlurView
-                    intensity={40}
-                    tint={
-                        darkMode ? "dark" : "light"
-                    }
-                    style={[
-                        styles.sidebar,
-                        isMobile && styles.mobileSidebar,
-                    ]}
-                >
-                    {/* TOP */}
-                    <View style={styles.sidebarTop}>
-                        {!editingWatchlist ? (
+            {/* MOBILE SIDEBAR */}
+            <Modal
+                visible={sidebarVisible}
+                transparent
+                animationType="slide"
+            >
+                <View style={styles.modalOverlay}>
+                    <View
+                        style={[
+                            styles.mobileSidebar,
+                            {
+                                backgroundColor: card,
+                            },
+                        ]}
+                    >
+                        <View style={styles.sidebarHeader}>
                             <Text
                                 style={[
                                     styles.sidebarTitle,
-                                    {
-                                        color: darkMode
-                                            ? "#fff"
-                                            : "#111",
-                                    },
+                                    { color: text },
                                 ]}
                             >
-                                {watchlistName}
+                                Default
                             </Text>
-                        ) : (
-                            <TextInput
-                                value={tempName}
-                                onChangeText={setTempName}
-                                placeholder="Enter Name"
-                                placeholderTextColor="#777"
-                                style={[
-                                    styles.editInput,
-                                    {
-                                        color: darkMode
-                                            ? "#fff"
-                                            : "#111",
-                                    },
-                                ]}
-                            />
-                        )}
 
-                        <View style={styles.sidebarIcons}>
-                            <Pressable
-                                onPress={() => {
-                                    if (editingWatchlist) {
-                                        setWatchlistName(
-                                            tempName
-                                        );
-                                    }
-
-                                    setEditingWatchlist(
-                                        !editingWatchlist
-                                    );
-                                }}
-                            >
-                                <MaterialIcons
-                                    name={
-                                        editingWatchlist
-                                            ? "check"
-                                            : "edit"
-                                    }
-                                    size={20}
-                                    color={
-                                        darkMode
-                                            ? "#fff"
-                                            : "#111"
-                                    }
-                                />
-                            </Pressable>
-
-                            <MaterialIcons
-                                name="playlist-add"
-                                size={20}
-                                color={
-                                    darkMode
-                                        ? "#fff"
-                                        : "#111"
+                            <TouchableOpacity
+                                onPress={() =>
+                                    setSidebarVisible(false)
                                 }
-                            />
-
-                            {isMobile && (
-                                <Pressable
-                                    onPress={() =>
-                                        setShowSidebar(false)
-                                    }
-                                >
-                                    <MaterialIcons
-                                        name="close"
-                                        size={20}
-                                        color={
-                                            darkMode
-                                                ? "#fff"
-                                                : "#111"
-                                        }
-                                    />
-                                </Pressable>
-                            )}
+                            >
+                                <Ionicons
+                                    name="close"
+                                    size={28}
+                                    color={text}
+                                />
+                            </TouchableOpacity>
                         </View>
-                    </View>
-
-                    {/* SEARCH */}
-                    <BlurView
-                        intensity={25}
-                        tint={
-                            darkMode ? "dark" : "light"
-                        }
-                        style={styles.searchBox}
-                    >
-                        <MaterialIcons
-                            name="search"
-                            size={18}
-                            color="#888"
-                        />
 
                         <TextInput
-                            placeholder="Search stocks..."
-                            placeholderTextColor="#777"
+                            placeholder="Search TCS, INFY..."
+                            placeholderTextColor="#888"
                             style={[
                                 styles.searchInput,
                                 {
-                                    color: darkMode
-                                        ? "#fff"
-                                        : "#111",
+                                    backgroundColor:
+                                        darkMode
+                                            ? "#111827"
+                                            : "#f3f4f6",
+
+                                    color: text,
                                 },
                             ]}
                         />
-                    </BlurView>
 
-                    {/* STOCKS */}
-                    <ScrollView
-                        showsVerticalScrollIndicator={
-                            false
-                        }
-                    >
-                        {sidebarStocks.map((item) => (
+                        {stocks.map((item, i) => (
                             <View
-                                key={item}
-                                style={styles.stockItem}
+                                key={i}
+                                style={styles.stockRow}
                             >
                                 <View>
                                     <Text
                                         style={[
                                             styles.stockName,
-                                            {
-                                                color: darkMode
-                                                    ? "#fff"
-                                                    : "#111",
-                                            },
+                                            { color: text },
                                         ]}
                                     >
                                         {item}
                                     </Text>
 
                                     <Text
-                                        style={styles.stockSub}
+                                        style={[
+                                            styles.stockType,
+                                            {
+                                                color: subText,
+                                            },
+                                        ]}
                                     >
                                         NSE
                                     </Text>
                                 </View>
 
-                                <View>
-                                    <Text
-                                        style={[
-                                            styles.stockPrice,
-                                            {
-                                                color: darkMode
-                                                    ? "#fff"
-                                                    : "#111",
-                                            },
-                                        ]}
-                                    >
-                                        1044.20
-                                    </Text>
-
-                                    <Text
-                                        style={[
-                                            styles.stockSub,
-                                            {
-                                                color: "#00C853",
-                                            },
-                                        ]}
-                                    >
-                                        +0.43%
-                                    </Text>
-                                </View>
+                                <Text
+                                    style={[
+                                        styles.stockPrice,
+                                        { color: text },
+                                    ]}
+                                >
+                                    1059.90
+                                </Text>
                             </View>
                         ))}
-                    </ScrollView>
-                </BlurView>
-            )}
+                    </View>
 
-            {/* MAIN */}
-            <ScrollView
-                style={styles.main}
-                contentContainerStyle={{
-                    paddingBottom: 100,
-                }}
-                showsVerticalScrollIndicator={
-                    false
-                }
+                    <TouchableOpacity
+                        style={styles.remainingOverlay}
+                        onPress={() =>
+                            setSidebarVisible(false)
+                        }
+                    />
+                </View>
+            </Modal>
+
+            {/* PROFILE MODAL */}
+            <Modal
+                visible={profileVisible}
+                transparent
+                animationType="fade"
             >
-                {/* TOPBAR */}
-                <BlurView
-                    intensity={30}
-                    tint={
-                        darkMode ? "dark" : "light"
+                <TouchableOpacity
+                    style={styles.profileOverlay}
+                    onPress={() =>
+                        setProfileVisible(false)
                     }
-                    style={styles.topbar}
-                >
-                    {/* MOBILE MENU */}
-                    {isMobile && (
-                        <Pressable
-                            onPress={() =>
-                                setShowSidebar(
-                                    !showSidebar
-                                )
-                            }
-                        >
-                            <MaterialIcons
-                                name="menu"
-                                size={28}
-                                color={
-                                    darkMode
-                                        ? "#fff"
-                                        : "#111"
-                                }
-                            />
-                        </Pressable>
-                    )}
+                />
 
-                    {/* MARKET */}
-                    <View style={styles.marketRow}>
-                        <View
-                            style={styles.marketBadge}
-                        >
-                            <Text
-                                style={[
-                                    styles.marketBadgeTitle,
-                                    {
-                                        color: darkMode
-                                            ? "#aaa"
-                                            : "#555",
-                                    },
-                                ]}
-                            >
-                                NIFTY 50
-                            </Text>
-
-                            <Text
-                                style={[
-                                    styles.marketBadgeValue,
-                                    {
-                                        color: darkMode
-                                            ? "#fff"
-                                            : "#111",
-                                    },
-                                ]}
-                            >
-                                24,114.95
-                            </Text>
-                        </View>
-
-                        <View
-                            style={styles.marketBadge}
-                        >
-                            <Text
-                                style={[
-                                    styles.marketBadgeTitle,
-                                    {
-                                        color: darkMode
-                                            ? "#aaa"
-                                            : "#555",
-                                    },
-                                ]}
-                            >
-                                BANK NIFTY
-                            </Text>
-
-                            <Text
-                                style={[
-                                    styles.marketBadgeValue,
-                                    {
-                                        color: darkMode
-                                            ? "#fff"
-                                            : "#111",
-                                    },
-                                ]}
-                            >
-                                54,547.05
-                            </Text>
-                        </View>
-                    </View>
-
-                    {/* NAV */}
-                    <View style={styles.navSection}>
-                        <Text style={styles.activeNav}>
-                            HOME
-                        </Text>
-
-                        {!isMobile && (
-                            <>
-                                <Text
-                                    style={[
-                                        styles.nav,
-                                        {
-                                            color: darkMode
-                                                ? "#aaa"
-                                                : "#444",
-                                        },
-                                    ]}
-                                >
-                                    ORDERS
-                                </Text>
-
-                                <Text
-                                    style={[
-                                        styles.nav,
-                                        {
-                                            color: darkMode
-                                                ? "#aaa"
-                                                : "#444",
-                                        },
-                                    ]}
-                                >
-                                    FUNDS
-                                </Text>
-                            </>
-                        )}
-                    </View>
-
-                    {/* RIGHT */}
-                    <View style={styles.rightTop}>
-                        {!isMobile && (
-                            <LinearGradient
-                                colors={[
-                                    "#FFD166",
-                                    "#FF9F1C",
-                                ]}
-                                style={
-                                    styles.subscribeBtn
-                                }
-                            >
-                                <Text
-                                    style={
-                                        styles.subscribeText
-                                    }
-                                >
-                                    SUBSCRIBE
-                                </Text>
-                            </LinearGradient>
-                        )}
-
-                        {/* DARK LIGHT */}
-                        <Pressable
-                            onPress={() =>
-                                setDarkMode(!darkMode)
-                            }
-                        >
-                            <BlurView
-                                intensity={30}
-                                tint={
-                                    darkMode
-                                        ? "dark"
-                                        : "light"
-                                }
-                                style={styles.iconCircle}
-                            >
-                                <MaterialIcons
-                                    name={
-                                        darkMode
-                                            ? "light-mode"
-                                            : "dark-mode"
-                                    }
-                                    size={18}
-                                    color={
-                                        darkMode
-                                            ? "#fff"
-                                            : "#111"
-                                    }
-                                />
-                            </BlurView>
-                        </Pressable>
-
-                        {/* NOTIFICATION */}
-                        <MaterialIcons
-                            name="notifications"
-                            size={22}
-                            color={
-                                darkMode
-                                    ? "#fff"
-                                    : "#111"
-                            }
-                        />
-
-                        {/* PROFILE */}
-                        <View
-                            style={{
-                                position: "relative",
-                                zIndex: 99999,
-                            }}
-                        >
-                            <Pressable
-                                style={styles.profile}
-                                onPress={() =>
-                                    setShowProfileMenu(
-                                        !showProfileMenu
-                                    )
-                                }
-                            >
-                                <MaterialIcons
-                                    name="account-circle"
-                                    size={42}
-                                    color={
-                                        darkMode
-                                            ? "#fff"
-                                            : "#111"
-                                    }
-                                />
-
-                                {!isMobile && (
-                                    <Text
-                                        style={[
-                                            styles.profileText,
-                                            {
-                                                color: darkMode
-                                                    ? "#fff"
-                                                    : "#111",
-                                            },
-                                        ]}
-                                    >
-                                        User
-                                    </Text>
-                                )}
-                            </Pressable>
-
-                            {/* DROPDOWN */}
-                            {showProfileMenu && (
-                                <View
-                                    style={[
-                                        styles.profileMenu,
-                                        {
-                                            backgroundColor:
-                                                darkMode
-                                                    ? "#111827"
-                                                    : "#fff",
-                                        },
-                                    ]}
-                                >
-                                    <Text
-                                        style={[
-                                            styles.menuName,
-                                            {
-                                                color: darkMode
-                                                    ? "#fff"
-                                                    : "#111",
-                                            },
-                                        ]}
-                                    >
-                                        User
-                                    </Text>
-
-                                    <Text
-                                        style={[
-                                            styles.menuEmail,
-                                            {
-                                                color: darkMode
-                                                    ? "#aaa"
-                                                    : "#555",
-                                            },
-                                        ]}
-                                    >
-                                        user123@gmail.com
-                                    </Text>
-
-                                    {[
-                                        "My Account",
-                                        "My Journals",
-                                        "Billing",
-                                        "Wallet",
-                                        "Support",
-                                    ].map((item) => (
-                                        <Pressable
-                                            key={item}
-                                            style={
-                                                styles.menuItem
-                                            }
-                                        >
-                                            <Text
-                                                style={[
-                                                    styles.menuText,
-                                                    {
-                                                        color: darkMode
-                                                            ? "#fff"
-                                                            : "#111",
-                                                    },
-                                                ]}
-                                            >
-                                                {item}
-                                            </Text>
-
-                                            <MaterialIcons
-                                                name="chevron-right"
-                                                size={18}
-                                                color={
-                                                    darkMode
-                                                        ? "#fff"
-                                                        : "#111"
-                                                }
-                                            />
-                                        </Pressable>
-                                    ))}
-
-                                    {/* LOGOUT */}
-                                    <Pressable
-                                        style={
-                                            styles.logoutBtn
-                                        }
-                                        onPress={() => {
-                                            router.replace("/");
-                                        }}
-                                    >
-                                        <Text
-                                            style={
-                                                styles.logoutText
-                                            }
-                                        >
-                                            Logout
-                                        </Text>
-                                    </Pressable>
-                                </View>
-                            )}
-                        </View>
-                    </View>
-                </BlurView>
-
-                {/* WELCOME */}
-                <Text
+                <View
                     style={[
-                        styles.heading,
+                        styles.profileModal,
                         {
-                            color: darkMode
-                                ? "#fff"
-                                : "#111",
+                            backgroundColor: card,
                         },
                     ]}
                 >
-                    Welcome Back, User👋
-                </Text>
+                    <Text
+                        style={[
+                            styles.profileName,
+                            { color: text },
+                        ]}
+                    >
+                        User
+                    </Text>
 
-                {/* FUNDS */}
-                <View style={styles.cardsRow}>
+                    <Text
+                        style={[
+                            styles.profileMail,
+                            { color: subText },
+                        ]}
+                    >
+                        user123@gmail.com
+                    </Text>
+
                     {[
-                        "Available Funds",
-                        "Blocked Funds",
-                        "Used Funds",
-                        "Today's P/L",
-                    ].map((item) => (
-                        <BlurView
-                            key={item}
-                            intensity={25}
-                            tint={
-                                darkMode
-                                    ? "dark"
-                                    : "light"
-                            }
-                            style={styles.fundCard}
+                        "My Account",
+                        "Trading Journal",
+                        "My Referrals",
+                        "Billing History",
+                        "Wallet Transactions",
+                        "Customer Support",
+                    ].map((item, i) => (
+                        <TouchableOpacity
+                            key={i}
+                            style={styles.profileItem}
                         >
                             <Text
                                 style={[
-                                    styles.cardLabel,
-                                    {
-                                        color: darkMode
-                                            ? "#aaa"
-                                            : "#555",
-                                    },
+                                    styles.profileText,
+                                    { color: text },
                                 ]}
                             >
                                 {item}
                             </Text>
-
-                            <Text
-                                style={[
-                                    styles.cardValue,
-                                    {
-                                        color: darkMode
-                                            ? "#fff"
-                                            : "#111",
-                                    },
-                                ]}
-                            >
-                                ₹100000
-                            </Text>
-                        </BlurView>
+                        </TouchableOpacity>
                     ))}
-                </View>
 
-                {/* CHART */}
-                <BlurView
-                    intensity={30}
-                    tint={
-                        darkMode ? "dark" : "light"
-                    }
-                    style={styles.chartContainer}
-                >
-                    <Text
-                        style={[
-                            styles.chartHead,
-                            {
-                                color: darkMode
-                                    ? "#fff"
-                                    : "#111",
-                            },
-                        ]}
-                    >
-                        NIFTY 50
-                    </Text>
-
-                    <Text
-                        style={[
-                            styles.chartPrice,
-                            {
-                                color: darkMode
-                                    ? "#fff"
-                                    : "#111",
-                            },
-                        ]}
-                    >
-                        24,114.95
-                    </Text>
-
-                    <Text style={styles.chartLoss}>
-                        -55.65 (-0.23%)
-                    </Text>
-
-                    <LineChart
-                        data={{
-                            labels: [
-                                "9AM",
-                                "11AM",
-                                "1PM",
-                                "3PM",
-                            ],
-                            datasets: [
-                                {
-                                    data: [
-                                        24090,
-                                        24150,
-                                        24110,
-                                        24114,
-                                    ],
-                                },
-                            ],
+                    <TouchableOpacity
+                        style={styles.logoutBtn}
+                        onPress={() => {
+                            setProfileVisible(false);
+                            router.replace("/");
                         }}
-                        width={
-                            isMobile
-                                ? width - 50
-                                : width - 450
+                    >
+                        <Text
+                            style={[
+                                styles.logoutText,
+                                { color: "#fff" },
+                            ]}
+                        >
+                            Logout
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+            </Modal>
+
+            <View
+                style={[
+                    styles.layout,
+                    {
+                        flexDirection: isMobile
+                            ? "column"
+                            : "row",
+                    },
+                ]}
+            >
+
+                {/* WATCHLIST MODAL */}
+                <Modal
+                    visible={watchlistModal}
+                    transparent
+                    animationType="fade"
+                >
+                    <TouchableOpacity
+                        style={styles.profileOverlay}
+                        onPress={() =>
+                            setWatchlistModal(false)
                         }
-                        height={240}
-                        bezier
-                        withDots={false}
-                        chartConfig={{
-                            backgroundGradientFrom:
-                                darkMode
-                                    ? "#131A27"
-                                    : "#fff",
-                            backgroundGradientTo:
-                                darkMode
-                                    ? "#131A27"
-                                    : "#fff",
-                            decimalPlaces: 0,
-                            color: () => "#FF6B6B",
-                            labelColor: () =>
-                                darkMode
-                                    ? "#888"
-                                    : "#555",
-                        }}
-                        style={styles.chart}
                     />
-                </BlurView>
 
-                {/* TRADE ANALYTICS */}
-
-                <Text
-                    style={[
-                        styles.sectionTitle,
-                        {
-                            color: darkMode
-                                ? "#fff"
-                                : "#111",
-                        },
-                    ]}
-                >
-                    Trade Analytics
-                </Text>
-
-                <View style={styles.analyticsContainer}>
-
-                    {/* PROFIT */}
-                    <LinearGradient
-                        colors={[
-                            "rgba(34,197,94,0.25)",
-                            "rgba(34,197,94,0.08)",
+                    <View
+                        style={[
+                            styles.watchlistModal,
+                            {
+                                backgroundColor: card,
+                            },
                         ]}
-                        style={styles.analyticsCard}
                     >
-                        <View style={styles.analyticsTop}>
-                            <View
-                                style={[
-                                    styles.analyticsIcon,
-                                    {
-                                        backgroundColor:
-                                            "rgba(34,197,94,0.2)",
-                                    },
-                                ]}
-                            >
-                                <MaterialIcons
-                                    name="trending-up"
-                                    size={22}
-                                    color="#22c55e"
-                                />
-                            </View>
+                        <Text
+                            style={{
+                                color: text,
+                                fontSize: 30,
+                                fontWeight: "700",
+                            }}
+                        >
+                            Manage Watchlists
+                        </Text>
 
-                            <Text style={styles.analyticsPercent}>
-                                78%
+                        <Text
+                            style={{
+                                color: subText,
+                                marginTop: 10,
+                            }}
+                        >
+                            Add or delete your watchlists
+                        </Text>
+
+                        <View
+                            style={{
+                                marginTop: 30,
+                            }}
+                        >
+                            <Text
+                                style={{
+                                    color: text,
+                                    fontSize: 18,
+                                }}
+                            >
+                                {watchlistName}
                             </Text>
                         </View>
 
-                        <Text style={styles.analyticsTitle}>
-                            Profit Trades
-                        </Text>
-
-                        <Text style={styles.analyticsSub}>
-                            24 profitable trades
-                        </Text>
-
-                        {/* BAR */}
-                        <View style={styles.progressBg}>
-                            <LinearGradient
-                                colors={[
-                                    "#22c55e",
-                                    "#16a34a",
-                                ]}
-                                style={[
-                                    styles.progressFill,
-                                    { width: "78%" },
-                                ]}
-                            />
-                        </View>
-                    </LinearGradient>
-
-                    {/* LOSS */}
-                    <LinearGradient
-                        colors={[
-                            "rgba(239,68,68,0.25)",
-                            "rgba(239,68,68,0.08)",
-                        ]}
-                        style={styles.analyticsCard}
-                    >
-                        <View style={styles.analyticsTop}>
-                            <View
-                                style={[
-                                    styles.analyticsIcon,
-                                    {
-                                        backgroundColor:
-                                            "rgba(239,68,68,0.2)",
-                                    },
-                                ]}
+                        <TouchableOpacity
+                            style={{
+                                marginTop: 30,
+                            }}
+                        >
+                            <Text
+                                style={{
+                                    color: "#3b82f6",
+                                    fontSize: 18,
+                                    fontWeight: "600",
+                                }}
                             >
-                                <MaterialIcons
-                                    name="trending-down"
-                                    size={22}
-                                    color="#ef4444"
-                                />
-                            </View>
-
-                            <Text style={styles.analyticsPercent}>
-                                22%
+                                + New List
                             </Text>
-                        </View>
-
-                        <Text style={styles.analyticsTitle}>
-                            Loss Trades
-                        </Text>
-
-                        <Text style={styles.analyticsSub}>
-                            8 losing trades
-                        </Text>
-
-                        {/* BAR */}
-                        <View style={styles.progressBg}>
-                            <LinearGradient
-                                colors={[
-                                    "#ef4444",
-                                    "#dc2626",
-                                ]}
-                                style={[
-                                    styles.progressFill,
-                                    { width: "22%" },
-                                ]}
-                            />
-                        </View>
-                    </LinearGradient>
-
-                    {/* BREAKEVEN */}
-                    <LinearGradient
-                        colors={[
-                            "rgba(250,204,21,0.25)",
-                            "rgba(250,204,21,0.08)",
-                        ]}
-                        style={styles.analyticsCard}
-                    >
-                        <View style={styles.analyticsTop}>
-                            <View
-                                style={[
-                                    styles.analyticsIcon,
-                                    {
-                                        backgroundColor:
-                                            "rgba(250,204,21,0.2)",
-                                    },
-                                ]}
-                            >
-                                <MaterialIcons
-                                    name="remove"
-                                    size={22}
-                                    color="#facc15"
-                                />
-                            </View>
-
-                            <Text style={styles.analyticsPercent}>
-                                10%
-                            </Text>
-                        </View>
-
-                        <Text style={styles.analyticsTitle}>
-                            Breakeven
-                        </Text>
-
-                        <Text style={styles.analyticsSub}>
-                            3 neutral trades
-                        </Text>
-
-                        {/* BAR */}
-                        <View style={styles.progressBg}>
-                            <LinearGradient
-                                colors={[
-                                    "#facc15",
-                                    "#eab308",
-                                ]}
-                                style={[
-                                    styles.progressFill,
-                                    { width: "10%" },
-                                ]}
-                            />
-                        </View>
-                    </LinearGradient>
-                </View>
-
-                {/* TOP MOVERS */}
-                <View style={styles.topMoverContainer}>
-
-                    {/* HEADER */}
-                    <View style={styles.topMoverHeader}>
-                        <Text style={styles.topMoverTitle}>
-                            Top Movers
-                        </Text>
-
-                        <View style={styles.topRightRow}>
-                            <View style={styles.updateBadge}>
-                                <Text style={styles.updateText}>
-                                    Last Updated - 06 May 2026 12:09
-                                </Text>
-                            </View>
-
-                            <View style={styles.dropdown}>
-                                <Text style={styles.dropdownText}>
-                                    NSE ▼
-                                </Text>
-                            </View>
-                        </View>
+                        </TouchableOpacity>
                     </View>
+                </Modal>
+                {/* DESKTOP SIDEBAR */}
+                {!isMobile && (
+                    <View
+                        style={[
+                            styles.sidebar,
+                            {
+                                backgroundColor: card,
+                            },
+                        ]}
+                    >
+                        <View style={styles.sidebarHeader}>
+                            {editingWatchlist ? (
+                                <TextInput
+                                    value={watchlistName}
+                                    onChangeText={setWatchlistName}
+                                    onBlur={() =>
+                                        setEditingWatchlist(false)
+                                    }
+                                    autoFocus
+                                    style={{
+                                        color: text,
+                                        fontSize: 24,
+                                        fontWeight: "700",
+                                        padding: 0,
+                                    }}
+                                />
+                            ) : (
+                                <Text
+                                    style={[
+                                        styles.sidebarTitle,
+                                        { color: text },
+                                    ]}
+                                >
+                                    {watchlistName}
+                                </Text>
+                            )}
 
-                    {/* LABELS */}
-                    <View style={styles.gainerLoserRow}>
-                        <Text style={styles.gainerText}>
-                            Top Gainers
-                        </Text>
+                            <View
+                                style={{
+                                    flexDirection: "row",
+                                    gap: 14,
+                                }}
+                            >
+                                {/* EDIT */}
+                                <TouchableOpacity
+                                    onPress={() =>
+                                        setEditingWatchlist(true)
+                                    }
+                                >
+                                    <Feather
+                                        name="edit"
+                                        size={20}
+                                        color={text}
+                                    />
+                                </TouchableOpacity>
 
-                        <Text style={styles.loserText}>
-                            Top Losers
-                        </Text>
-                    </View>
 
-                    {/* TABLE */}
-                    <View style={styles.tableContainer}>
-
-                        {/* HEADER */}
-                        <View style={styles.tableHeader}>
-                            <Text style={styles.headCell}>
-                                STOCK
-                            </Text>
-                            <Text style={styles.headCell}>
-                                LTP
-                            </Text>
-                            <Text style={styles.headCell}>
-                                CHANGE
-                            </Text>
-                            <Text style={styles.headCell}>
-                                OPEN
-                            </Text>
-                            <Text style={styles.headCell}>
-                                HIGH
-                            </Text>
-
-                            <Text style={styles.headCell}>
-                                STOCK
-                            </Text>
-                            <Text style={styles.headCell}>
-                                LTP
-                            </Text>
-                            <Text style={styles.headCell}>
-                                CHANGE
-                            </Text>
-                            <Text style={styles.headCell}>
-                                OPEN
-                            </Text>
-                            <Text style={styles.headCell}>
-                                HIGH
-                            </Text>
+                                {/* WATCHLIST */}
+                                <TouchableOpacity
+                                    onPress={() =>
+                                        setWatchlistModal(true)
+                                    }
+                                >
+                                    <Ionicons
+                                        name="add-outline"
+                                        size={24}
+                                        color={text}
+                                    />
+                                </TouchableOpacity>
+                            </View>
                         </View>
 
-                        {[
-                            [
-                                "INDIGO",
-                                "4374.9",
-                                "+3.22%",
-                                "4320",
-                                "4393",
+                        <TextInput
+                            placeholder="Search TCS, INFY..."
+                            placeholderTextColor="#888"
+                            style={[
+                                styles.searchInput,
+                                {
+                                    backgroundColor:
+                                        darkMode
+                                            ? "#111827"
+                                            : "#f3f4f6",
 
-                                "LT",
-                                "3923",
-                                "-3.24%",
-                                "3974",
-                                "3974",
-                            ],
+                                    color: text,
+                                },
+                            ]}
+                        />
 
-                            [
-                                "TRENT",
-                                "4249.4",
-                                "+2.76%",
-                                "4157.9",
-                                "4270",
-
-                                "ONGC",
-                                "285.25",
-                                "-1.62%",
-                                "289.95",
-                                "290.25",
-                            ],
-
-                            [
-                                "CIPLA",
-                                "1362.6",
-                                "+2.17%",
-                                "1340",
-                                "1367.3",
-
-                                "RELIANCE",
-                                "1446.1",
-                                "-1.2%",
-                                "1463",
-                                "1473.3",
-                            ],
-
-                            [
-                                "DRREDDY",
-                                "1297.6",
-                                "+2.08%",
-                                "1282",
-                                "1303",
-
-                                "HINDUNILVR",
-                                "2302.2",
-                                "-1.08%",
-                                "2330",
-                                "2339.4",
-                            ],
-
-                            [
-                                "ASIANPAINT",
-                                "2480.1",
-                                "+2.06%",
-                                "2460",
-                                "2482.8",
-
-                                "TITAN",
-                                "4336.4",
-                                "-0.85%",
-                                "4397.5",
-                                "4441.1",
-                            ],
-                        ].map((row, index) => (
+                        {stocks.map((item, i) => (
                             <View
-                                key={index}
-                                style={styles.tableDataRow}
+                                key={i}
+                                style={styles.stockRow}
                             >
-
-                                {row.map((cell, i) => (
+                                <View>
                                     <Text
-                                        key={i}
                                         style={[
-                                            styles.dataCell,
+                                            styles.stockName,
+                                            { color: text },
+                                        ]}
+                                    >
+                                        {item}
+                                    </Text>
 
-                                            i === 2 && {
-                                                color: "#22c55e",
-                                                fontWeight: "700",
-                                            },
-
-                                            i === 7 && {
-                                                color: "#ef4444",
-                                                fontWeight: "700",
+                                    <Text
+                                        style={[
+                                            styles.stockType,
+                                            {
+                                                color: subText,
                                             },
                                         ]}
                                     >
-                                        {cell}
+                                        NSE
                                     </Text>
-                                ))}
+                                </View>
+
+                                <Text
+                                    style={[
+                                        styles.stockPrice,
+                                        { color: text },
+                                    ]}
+                                >
+                                    1059.90
+                                </Text>
                             </View>
                         ))}
                     </View>
-                </View>
+                )}
 
-            </ScrollView>
-        </LinearGradient>
+                {/* MAIN CONTENT */}
+                <ScrollView
+                    style={styles.content}
+                    showsVerticalScrollIndicator={
+                        false
+                    }
+                >
+                    {/* TOPBAR */}
+                    <View
+                        style={[
+                            styles.topbar,
+                            {
+                                flexDirection: isMobile
+                                    ? "column"
+                                    : "row",
+                            },
+                        ]}
+                    >
+                        {/* MOBILE MENU */}
+                        {isMobile && (
+                            <TouchableOpacity
+                                onPress={() =>
+                                    setSidebarVisible(true)
+                                }
+                            >
+                                <Feather
+                                    name="menu"
+                                    size={32}
+                                    color={text}
+                                />
+                            </TouchableOpacity>
+                        )}
+
+                        {/* MARKET */}
+                        <View style={styles.marketRow}>
+                            <View
+                                style={[
+                                    styles.marketCard,
+                                    {
+                                        backgroundColor:
+                                            darkMode
+                                                ? "#111827"
+                                                : "#fff",
+                                    },
+                                ]}
+                            >
+                                <Text
+                                    style={[
+                                        styles.marketTitle,
+                                        {
+                                            color: subText,
+                                        },
+                                    ]}
+                                >
+                                    NIFTY 50
+                                </Text>
+
+                                <Text
+                                    style={[
+                                        styles.marketValue,
+                                        { color: text },
+                                    ]}
+                                >
+                                    24,114.95
+                                </Text>
+                            </View>
+
+                            <View
+                                style={[
+                                    styles.marketCard,
+                                    {
+                                        backgroundColor:
+                                            darkMode
+                                                ? "#111827"
+                                                : "#fff",
+                                    },
+                                ]}
+                            >
+                                <Text
+                                    style={[
+                                        styles.marketTitle,
+                                        {
+                                            color: subText,
+                                        },
+                                    ]}
+                                >
+                                    BANK NIFTY
+                                </Text>
+
+                                <Text
+                                    style={[
+                                        styles.marketValue,
+                                        { color: text },
+                                    ]}
+                                >
+                                    54,547.05
+                                </Text>
+                            </View>
+                        </View>
+
+                        {/* NAV */}
+                        <View style={styles.navRow}>
+                            {[
+                                "HOME",
+                                "ORDERS",
+                                "FUNDS",
+                            ].map((item, i) => (
+                                <Text
+                                    key={i}
+                                    style={[
+                                        styles.navText,
+                                        {
+                                            color:
+                                                i === 0
+                                                    ? "#fbbf24"
+                                                    : subText,
+                                        },
+                                    ]}
+                                >
+                                    {item}
+                                </Text>
+                            ))}
+                        </View>
+
+                        {/* ICONS */}
+                        <View style={styles.iconRow}>
+                            <TouchableOpacity
+                                style={[
+                                    styles.iconBtn,
+                                    {
+                                        backgroundColor:
+                                            darkMode
+                                                ? "#111827"
+                                                : "#fff",
+                                    },
+                                ]}
+                                onPress={() =>
+                                    setDarkMode(!darkMode)
+                                }
+                            >
+                                <Ionicons
+                                    name={
+                                        darkMode
+                                            ? "sunny"
+                                            : "moon"
+                                    }
+                                    size={20}
+                                    color={text}
+                                />
+                            </TouchableOpacity>
+
+                            <Ionicons
+                                name="notifications"
+                                size={24}
+                                color={text}
+                            />
+
+                            <TouchableOpacity
+                                onPress={() =>
+                                    setProfileVisible(true)
+                                }
+                            >
+                                <FontAwesome5
+                                    name="user-circle"
+                                    size={38}
+                                    color={text}
+                                />
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+
+                    {/* WELCOME */}
+                    <Text
+                        style={[
+                            styles.welcome,
+                            { color: text },
+                        ]}
+                    >
+                        Welcome Back 👋
+                    </Text>
+
+                    {/* FUND CARDS */}
+                    <View
+                        style={[
+                            styles.fundWrapper,
+                            {
+                                flexDirection: isMobile
+                                    ? "column"
+                                    : "row",
+                            },
+                        ]}
+                    >
+                        {[
+                            "Available Funds",
+                            "Blocked Funds",
+                            "Used Funds",
+                            "Today's P/L",
+                        ].map((item, i) => (
+                            <LinearGradient
+                                key={i}
+                                colors={
+                                    darkMode
+                                        ? [
+                                            "#07122e",
+                                            "#08142f",
+                                        ]
+                                        : [
+                                            "#ffffff",
+                                            "#f9fafb",
+                                        ]
+                                }
+                                style={styles.fundCard}
+                            >
+                                <Text
+                                    style={[
+                                        styles.fundTitle,
+                                        {
+                                            color: subText,
+                                        },
+                                    ]}
+                                >
+                                    {item}
+                                </Text>
+
+                                <Text
+                                    style={[
+                                        styles.fundValue,
+                                        { color: text },
+                                    ]}
+                                >
+                                    ₹100000
+                                </Text>
+                            </LinearGradient>
+                        ))}
+                    </View>
+
+                    {/* ANALYTICS */}
+                    <Text
+                        style={[
+                            styles.sectionTitle,
+                            { color: text },
+                        ]}
+                    >
+                        Trade Analytics
+                    </Text>
+
+                    <View
+                        style={[
+                            styles.analyticsWrapper,
+                            {
+                                flexDirection: isMobile
+                                    ? "column"
+                                    : "row",
+                            },
+                        ]}
+                    >
+                        {[
+                            {
+                                title: "Profit Trades",
+                                value: "78%",
+                                color: "#22c55e",
+                            },
+
+                            {
+                                title: "Loss Trades",
+                                value: "22%",
+                                color: "#ef4444",
+                            },
+
+                            {
+                                title: "Breakeven",
+                                value: "10%",
+                                color: "#facc15",
+                            },
+                        ].map((item, i) => (
+                            <LinearGradient
+                                key={i}
+                                colors={[
+                                    `${item.color}35`,
+                                    `${item.color}10`,
+                                ]}
+                                style={styles.analyticsCard}
+                            >
+                                <Text
+                                    style={[
+                                        styles.analyticsPercent,
+                                        { color: text },
+                                    ]}
+                                >
+                                    {item.value}
+                                </Text>
+
+                                <Text
+                                    style={styles.analyticsTitle}
+                                >
+                                    {item.title}
+                                </Text>
+
+                                <View style={styles.progressBg}>
+                                    <View
+                                        style={[
+                                            styles.progressFill,
+                                            {
+                                                width: item.value,
+                                                backgroundColor:
+                                                    item.color,
+                                            },
+                                        ]}
+                                    />
+                                </View>
+                            </LinearGradient>
+                        ))}
+                    </View>
+
+                    {/* TOP MOVERS */}
+                    <View
+                        style={[
+                            styles.topMoverCard,
+                            {
+                                backgroundColor: card,
+                            },
+                        ]}
+                    >
+                        <Text
+                            style={[
+                                styles.sectionTitle,
+                                {
+                                    color: text,
+                                    marginTop: 0,
+                                },
+                            ]}
+                        >
+                            Top Movers
+                        </Text>
+
+                        {/* MOBILE */}
+                        {isMobile ? (
+                            <>
+                                <Text
+                                    style={styles.gainerTitle}
+                                >
+                                    Top Gainers
+                                </Text>
+
+                                {gainers.map((item, i) => (
+                                   <View
+  key={i}
+  style={[
+    styles.mobileMoverRow,
+    {
+      backgroundColor: darkMode
+        ? "#111827"
+        : "#f9fafb",
+    },
+  ]}
+>
+                                        <View>
+                                            <Text
+                                                style={[
+                                                    styles.mobileStock,
+                                                    { color: text },
+                                                ]}
+                                            >
+                                                {item.stock}
+                                            </Text>
+
+                                            <Text
+                                                style={{
+                                                    color: subText,
+                                                }}
+                                            >
+                                                ₹{item.ltp}
+                                            </Text>
+                                        </View>
+
+                                        <Text
+                                            style={{
+                                                color: "#22c55e",
+                                                fontWeight: "700",
+                                            }}
+                                        >
+                                            {item.change}
+                                        </Text>
+                                    </View>
+                                ))}
+
+                                <Text
+                                    style={[
+                                        styles.gainerTitle,
+                                        {
+                                            color: "#ef4444",
+                                        },
+                                    ]}
+                                >
+                                    Top Losers
+                                </Text>
+
+                                {losers.map((item, i) => (
+                                    <View
+                                        key={i}
+                                        style={
+                                            styles.mobileMoverRow
+                                        }
+                                    >
+                                        <View>
+                                            <Text
+                                                style={[
+                                                    styles.mobileStock,
+                                                    { color: text },
+                                                ]}
+                                            >
+                                                {item.stock}
+                                            </Text>
+
+                                            <Text
+                                                style={{
+                                                    color: subText,
+                                                }}
+                                            >
+                                                ₹{item.ltp}
+                                            </Text>
+                                        </View>
+
+                                        <Text
+                                            style={{
+                                                color: "#ef4444",
+                                                fontWeight: "700",
+                                            }}
+                                        >
+                                            {item.change}
+                                        </Text>
+                                    </View>
+                                ))}
+                            </>
+                        ) : (
+                            <>
+                                <View
+  style={[
+    styles.tableHeader,
+    {
+      backgroundColor: darkMode
+        ? "#1f2937"
+        : "#e5e7eb",
+    },
+  ]}
+>
+                                    {[
+                                        "STOCK",
+                                        "LTP",
+                                        "CHANGE",
+                                        "STOCK",
+                                        "LTP",
+                                        "CHANGE",
+                                    ].map((item, i) => (
+                                        <Text
+                                            key={i}
+                                            style={styles.tableHead}
+                                        >
+                                            {item}
+                                        </Text>
+                                    ))}
+                                </View>
+
+                                {gainers.map((item, i) => (
+                                    <View
+                                        key={i}
+                                        style={styles.tableRow}
+                                    >
+                                        <Text
+                                            style={[
+                                                styles.tableCell,
+                                                { color: text },
+                                            ]}
+                                        >
+                                            {item.stock}
+                                        </Text>
+
+                                        <Text
+                                            style={[
+                                                styles.tableCell,
+                                                { color: text },
+                                            ]}
+                                        >
+                                            ₹{item.ltp}
+                                        </Text>
+
+                                        <Text
+                                            style={[
+                                                styles.tableCell,
+                                                {
+                                                    color: "#22c55e",
+                                                },
+                                            ]}
+                                        >
+                                            {item.change}
+                                        </Text>
+
+                                        <Text
+                                            style={[
+                                                styles.tableCell,
+                                                { color: text },
+                                            ]}
+                                        >
+                                            {losers[i].stock}
+                                        </Text>
+
+                                        <Text
+                                            style={[
+                                                styles.tableCell,
+                                                { color: text },
+                                            ]}
+                                        >
+                                            ₹{losers[i].ltp}
+                                        </Text>
+
+                                        <Text
+                                            style={[
+                                                styles.tableCell,
+                                                {
+                                                    color: "#ef4444",
+                                                },
+                                            ]}
+                                        >
+                                            {losers[i].change}
+                                        </Text>
+                                    </View>
+                                ))}
+                            </>
+                        )}
+                    </View>
+
+                    <View style={{ height: 60 }} />
+                </ScrollView>
+            </View>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        flexDirection: "row",
     },
 
-    overlay: {
-        position: "absolute",
-        width: "100%",
-        height: "100%",
-        backgroundColor:
-            "rgba(0,0,0,0.5)",
-        zIndex: 998,
+    layout: {
+        flex: 1,
     },
 
     sidebar: {
@@ -1155,506 +1072,304 @@ const styles = StyleSheet.create({
     },
 
     mobileSidebar: {
-        position: "absolute",
-        zIndex: 999,
+        width: 280,
         height: "100%",
+        padding: 20,
     },
 
-    sidebarTop: {
+    modalOverlay: {
+        flex: 1,
+        flexDirection: "row",
+    },
+
+    remainingOverlay: {
+        flex: 1,
+        backgroundColor:
+            "rgba(0,0,0,0.4)",
+    },
+
+    sidebarHeader: {
         flexDirection: "row",
         justifyContent:
             "space-between",
+
         alignItems: "center",
         marginBottom: 20,
     },
 
     sidebarTitle: {
-        fontSize: 22,
+        fontSize: 28,
         fontWeight: "700",
     },
 
-    sidebarIcons: {
-        flexDirection: "row",
-        gap: 14,
-    },
-
-    editInput: {
-        borderBottomWidth: 1,
-        borderBottomColor:
-            "rgba(255,255,255,0.2)",
-        minWidth: 120,
-    },
-
-    searchBox: {
-        flexDirection: "row",
-        alignItems: "center",
-        borderRadius: 18,
-        paddingHorizontal: 14,
-        marginBottom: 20,
-    },
-
     searchInput: {
-        flex: 1,
         padding: 14,
+        borderRadius: 16,
+        marginBottom: 24,
     },
 
-    stockItem: {
+    stockRow: {
         flexDirection: "row",
         justifyContent:
             "space-between",
-        paddingVertical: 18,
-        borderBottomWidth: 1,
-        borderBottomColor:
-            "rgba(255,255,255,0.05)",
+
+        marginBottom: 24,
     },
 
     stockName: {
         fontWeight: "700",
+        fontSize: 18,
     },
 
-    stockSub: {
-        color: "#888",
+    stockType: {
         marginTop: 4,
-        fontSize: 12,
     },
 
-    stockPrice: {},
+    stockPrice: {
+        fontSize: 18,
+    },
 
-    main: {
+    content: {
         flex: 1,
         padding: 20,
-        overflow: "visible",
     },
 
     topbar: {
-        flexDirection: isMobile
-            ? "column"
-            : "row",
         justifyContent:
             "space-between",
+
         alignItems: "center",
-        padding: 18,
-        borderRadius: 24,
-        marginBottom: 30,
-        zIndex: 9999,
+        gap: 20,
     },
 
     marketRow: {
         flexDirection: "row",
-        gap: 12,
+        gap: 16,
     },
 
-    marketBadge: {
-        backgroundColor:
-            "rgba(255,255,255,0.05)",
-        padding: 12,
-        borderRadius: 16,
+    marketCard: {
+        padding: 16,
+        borderRadius: 18,
     },
 
-    marketBadgeTitle: {
+    marketTitle: {
         fontSize: 12,
     },
 
-    marketBadgeValue: {
-        marginTop: 4,
-        fontWeight: "700",
-    },
-
-    navSection: {
-        flexDirection: "row",
-        gap: 30,
-    },
-
-    activeNav: {
-        color: "#FFD166",
-        fontWeight: "700",
-        borderBottomWidth: 2,
-        borderBottomColor: "#FFD166",
-        paddingBottom: 4,
-    },
-
-    nav: {
-        fontWeight: "600",
-    },
-
-    rightTop: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: 16,
-    },
-
-    subscribeBtn: {
-        paddingHorizontal: 18,
-        paddingVertical: 10,
-        borderRadius: 14,
-    },
-
-    subscribeText: {
-        fontWeight: "700",
-        color: "#111",
-    },
-
-    iconCircle: {
-        padding: 10,
-        borderRadius: 12,
-        overflow: "hidden",
-    },
-
-    profile: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: 8,
-    },
-
-    profileText: {
-        fontWeight: "700",
-    },
-
-    profileMenu: {
-        position: "absolute",
-        top: 65,
-        right: 0,
-        width: 280,
-        borderRadius: 22,
-        padding: 20,
-        zIndex: 999999,
-        elevation: 999999,
-        borderWidth: 1,
-        borderColor:
-            "rgba(255,255,255,0.08)",
-    },
-
-    menuName: {
+    marketValue: {
         fontSize: 20,
         fontWeight: "700",
-    },
-
-    menuEmail: {
-        marginBottom: 20,
         marginTop: 4,
     },
 
-    menuItem: {
+    navRow: {
         flexDirection: "row",
-        justifyContent:
-            "space-between",
-        alignItems: "center",
-        paddingVertical: 14,
-    },
-
-    menuText: {
-        fontWeight: "500",
-    },
-
-    logoutBtn: {
-        marginTop: 16,
-        backgroundColor: "#FF3B30",
-        padding: 14,
-        borderRadius: 14,
-        alignItems: "center",
-    },
-
-    logoutText: {
-        color: "#fff",
-        fontWeight: "700",
-    },
-
-    heading: {
-        fontSize: 38,
-        fontWeight: "700",
-        marginBottom: 24,
-    },
-
-    cardsRow: {
-        flexDirection: "row",
+        gap: 24,
         flexWrap: "wrap",
+  justifyContent: "center",
+    },
+
+    navText: {
+        fontWeight: "700",
+        fontSize: 15,
+    },
+
+    iconRow: {
+        flexDirection: "row",
+        alignItems: "center",
         gap: 16,
+    },
+
+    iconBtn: {
+        padding: 12,
+        borderRadius: 14,
+    },
+
+    welcome: {
+        fontSize: isMobile ? 34 : 60,
+        fontWeight: "800",
+        marginTop: 40,
+    },
+
+    fundWrapper: {
+        gap: 20,
+        marginTop: 30,
     },
 
     fundCard: {
-        width: isMobile
-            ? "100%"
-            : 220,
-        borderRadius: 24,
-        padding: 20,
-        overflow: "hidden",
-    },
-
-    cardLabel: {
-        marginBottom: 10,
-    },
-
-    cardValue: {
-        fontSize: 26,
-        fontWeight: "700",
-    },
-
-    chartContainer: {
-        marginTop: 30,
-        borderRadius: 28,
+        flex: 1,
         padding: 24,
-    },
-
-    chartHead: {
-        fontSize: 36,
-        fontWeight: "700",
-    },
-
-    chartPrice: {
-        fontSize: 28,
-        marginTop: 10,
-    },
-
-    chartLoss: {
-        color: "#FF6B6B",
-        marginTop: 4,
-    },
-
-    chart: {
-        marginTop: 20,
         borderRadius: 24,
+        width: isMobile ? "100%" : undefined,
+    },
+
+    fundTitle: {
+        fontSize: 16,
+    },
+
+    fundValue: {
+        fontSize: 34,
+        fontWeight: "800",
+        marginTop: 14,
     },
 
     sectionTitle: {
         fontSize: 28,
         fontWeight: "700",
-        marginTop: 30,
-        marginBottom: 18,
+        marginTop: 40,
+        marginBottom: 20,
     },
 
-    analyticsRow: {
-        flexDirection: isMobile
-            ? "column"
-            : "row",
-        gap: 16,
+    analyticsWrapper: {
+        gap: 18,
     },
 
     analyticsCard: {
         flex: 1,
+        padding: 24,
         borderRadius: 24,
-        padding: 22,
-        overflow: "hidden",
+    },
+
+    analyticsPercent: {
+        color: "#fff",
+
+        fontSize: 42,
+        fontWeight: "800",
     },
 
     analyticsTitle: {
+        color: "#fff",
+        fontSize: 18,
+        marginTop: 10,
+        fontWeight: "700",
+    },
+
+    progressBg: {
+        height: 10,
+        backgroundColor:
+            "rgba(255,255,255,0.1)",
+
+        borderRadius: 20,
+        marginTop: 18,
+    },
+
+    progressFill: {
+        height: "100%",
+        borderRadius: 20,
+    },
+
+    topMoverCard: {
+        marginTop: 40,
+        padding: 20,
+        borderRadius: 24,
+    },
+
+    gainerTitle: {
+        color: "#22c55e",
+        fontSize: 18,
+        fontWeight: "700",
+        marginBottom: 14,
+        marginTop: 10,
+    },
+
+    mobileMoverRow: {
+  flexDirection: "row",
+  justifyContent: "space-between",
+  padding: 16,
+  borderRadius: 18,
+  marginBottom: 12,
+},
+    mobileStock: {
         fontSize: 18,
         fontWeight: "700",
     },
 
-    analyticsSub: {
-        marginTop: 10,
-    },
-
-    topMovers: {
-        borderRadius: 24,
-        padding: 20,
-        overflow: "hidden",
-        marginBottom: 60,
+    tableHeader: {
+        flexDirection: "row",
+        backgroundColor: "#1f2937",
+        paddingVertical: 14,
+        borderRadius: 12,
     },
 
     tableHead: {
-        flexDirection: "row",
-        justifyContent:
-            "space-between",
-        marginBottom: 12,
-    },
-
-    tableHeadText: {
-        width: "25%",
+        flex: 1,
+        color: "#9ca3af",
+        textAlign: "center",
         fontWeight: "700",
     },
 
     tableRow: {
         flexDirection: "row",
-        justifyContent:
-            "space-between",
-        paddingVertical: 16,
+        paddingVertical: 18,
         borderBottomWidth: 1,
         borderBottomColor:
             "rgba(255,255,255,0.05)",
     },
 
     tableCell: {
-        width: "25%",
+        flex: 1,
+        color: "#fff",
+
+        textAlign: "center",
     },
 
-    topMoverContainer: {
-        marginTop: 30,
-        backgroundColor: "#111827",
+    profileOverlay: {
+        flex: 1,
+        backgroundColor:
+            "rgba(0,0,0,0.4)",
+    },
+
+    profileModal: {
+        position: "absolute",
+        right: 20,
+        top: isMobile ? 90 : 70,
+        width: isMobile ? 280 : 340,
         borderRadius: 24,
-        padding: 18,
-        borderWidth: 1,
-        borderColor: "rgba(255,255,255,0.05)",
+        padding: 24,
+
+        zIndex: 999,
+        elevation: 20,
     },
 
-    topMoverHeader: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: 14,
-    },
-
-    topMoverTitle: {
-        color: "#fff",
-        fontSize: 28,
+    profileName: {
+        fontSize: 24,
         fontWeight: "700",
     },
 
-    topRightRow: {
-        flexDirection: "row",
-        gap: 10,
-        alignItems: "center",
+    profileMail: {
+        marginTop: 6,
+        marginBottom: 20,
     },
 
-    updateBadge: {
-        backgroundColor: "#1f2937",
-        paddingHorizontal: 14,
-        paddingVertical: 10,
-        borderRadius: 10,
-    },
-
-    updateText: {
-        color: "#d1d5db",
-        fontSize: 12,
-    },
-
-    dropdown: {
-        backgroundColor: "#111827",
-        borderWidth: 1,
-        borderColor: "#374151",
-        paddingHorizontal: 16,
-        paddingVertical: 10,
-        borderRadius: 12,
-    },
-
-    dropdownText: {
-        color: "#fff",
-    },
-
-    gainerLoserRow: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        marginBottom: 12,
-    },
-
-    gainerText: {
-        color: "#22c55e",
-        fontWeight: "700",
-        fontSize: 18,
-    },
-
-    loserText: {
-        color: "#ef4444",
-        fontWeight: "700",
-        fontSize: 18,
-    },
-
-    tableContainer: {
-        backgroundColor: "#0f172a",
-        borderRadius: 16,
-        overflow: "hidden",
-    },
-
-    tableHeader: {
-        flexDirection: "row",
-        backgroundColor: "#2b2b2b",
+    profileItem: {
         paddingVertical: 14,
     },
 
-    headCell: {
-        flex: 1,
-        color: "#d1d5db",
-        textAlign: "center",
-        fontWeight: "700",
-        fontSize: 12,
+    profileText: {
+        fontSize: 16,
     },
 
-    tableDataRow: {
-        flexDirection: "row",
-        paddingVertical: 18,
-        borderBottomWidth: 1,
-        borderBottomColor:
-            "rgba(255,255,255,0.05)",
+    logoutBtn: {
+        marginTop: 20,
+        backgroundColor: "#ef4444",
+        padding: 16,
+        borderRadius: 16,
+        alignItems: "center",
     },
 
-    dataCell: {
-        flex: 1,
+    logoutText: {
         color: "#fff",
-        textAlign: "center",
-        fontSize: 12,
+
+        fontWeight: "700",
     },
-    analyticsContainer: {
-  flexDirection: isMobile
-    ? "column"
-    : "row",
-  gap: 18,
-  marginTop: 10,
-},
+    watchlistModal: {
+        position: "absolute",
+       top: isMobile ? 120 : 170,
+  left: isMobile ? 10 : 20,
+  width: isMobile ? "92%" : 460,
+        borderRadius: 24,
+        zIndex: 999,
+        elevation: 20,
+    },
 
-analyticsCard: {
-  flex: 1,
-  borderRadius: 28,
-  padding: 22,
-  borderWidth: 1,
-  borderColor:
-    "rgba(255,255,255,0.08)",
-
-  shadowColor: "#000",
-  shadowOpacity: 0.25,
-  shadowRadius: 20,
-  shadowOffset: {
-    width: 0,
-    height: 10,
-  },
-
-  elevation: 10,
-},
-
-analyticsTop: {
-  flexDirection: "row",
-  justifyContent:
-    "space-between",
-  alignItems: "center",
-},
-
-analyticsIcon: {
-  width: 48,
-  height: 48,
-  borderRadius: 16,
-  justifyContent: "center",
-  alignItems: "center",
-},
-
-analyticsPercent: {
-  color: "#fff",
-  fontSize: 28,
-  fontWeight: "800",
-},
-
-analyticsTitle: {
-  color: "#fff",
-  fontSize: 20,
-  fontWeight: "700",
-  marginTop: 20,
-},
-
-analyticsSub: {
-  color: "#9ca3af",
-  marginTop: 6,
-  marginBottom: 20,
-},
-
-progressBg: {
-  width: "100%",
-  height: 10,
-  backgroundColor:
-    "rgba(255,255,255,0.08)",
-  borderRadius: 20,
-  overflow: "hidden",
-},
-
-progressFill: {
-  height: "100%",
-  borderRadius: 20,
-},
 });
