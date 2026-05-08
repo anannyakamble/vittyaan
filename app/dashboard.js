@@ -1,15 +1,16 @@
 // app/dashboard.js
 
-import React, { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
-    View,
-    Text,
-    StyleSheet,
-    ScrollView,
-    TouchableOpacity,
-    TextInput,
     Dimensions,
     Modal,
+    SafeAreaView,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 
 import { LinearGradient } from "expo-linear-gradient";
@@ -17,279 +18,178 @@ import { LineChart } from "react-native-chart-kit";
 
 import {
     Feather,
-    Ionicons,
-    MaterialIcons,
     FontAwesome5,
+    Ionicons,
 } from "@expo/vector-icons";
 
 import { useRouter } from "expo-router";
 
-const { width } = Dimensions.get("window");
-const isMobile = width < 768;
+// ─── Safe area insets (optional but recommended) ───────────────────────────────
+// If you have react-native-safe-area-context installed, swap this block:
+//   import { useSafeAreaInsets } from "react-native-safe-area-context";
+// And inside the component:
+//   const insets = useSafeAreaInsets();
+// Then use insets.top where needed instead of STATUS_BAR_OFFSET.
+const STATUS_BAR_OFFSET = 50;
 
 export default function Dashboard() {
     const router = useRouter();
 
+    // ─── Reactive dimensions ────────────────────────────────────────────────────
+    const [windowDims, setWindowDims] = useState(Dimensions.get("window"));
+
+    useEffect(() => {
+        const sub = Dimensions.addEventListener("change", ({ window }) => {
+            setWindowDims(window);
+        });
+        return () => sub.remove();
+    }, []);
+
+    const { width, height } = windowDims;
+    const isMobile = width < 768;
+    const isTablet = width >= 768 && width < 1024;
+
+    // ─── Chart width measured via onLayout ─────────────────────────────────────
+    const [chartWidth, setChartWidth] = useState(width - (isMobile ? 70 : 500));
+
+    // ─── UI state ───────────────────────────────────────────────────────────────
     const [darkMode, setDarkMode] = useState(true);
-    const [sidebarVisible, setSidebarVisible] =
-        useState(false);
+    const [sidebarVisible, setSidebarVisible] = useState(false);
+    const [profileVisible, setProfileVisible] = useState(false);
+    const [watchlistName, setWatchlistName] = useState("Default");
+    const [editingWatchlist, setEditingWatchlist] = useState(false);
+    const [watchlistModal, setWatchlistModal] = useState(false);
 
-    const [profileVisible, setProfileVisible] =
-        useState(false);
+    // ─── Theme tokens ───────────────────────────────────────────────────────────
+    const bg      = darkMode ? "#050816" : "#f4f6f9";
+    const card    = darkMode ? "#171717" : "#ffffff";
+    const text    = darkMode ? "#ffffff" : "#111827";
+    const border  = darkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)";
+    const subText = darkMode ? "#9ca3af" : "#6b7280";
+    const inputBg = darkMode ? "#111827" : "#f3f4f6";
+    const tagBg   = darkMode ? "#1f2937" : "#e5e7eb";
 
-    const [watchlistName, setWatchlistName] =
-        useState("Default");
-
-    const [editingWatchlist, setEditingWatchlist] =
-        useState(false);
-
-    const [watchlistModal, setWatchlistModal] =
-        useState(false);
-
-    const bg = darkMode
-        ? "#050816"
-        : "#f4f6f9";
-    const card = darkMode
-        ? "#0f172a"
-        : "#ffffff";
-    const text = darkMode ? "#ffffff" : "#111827";
-    const subText = darkMode
-        ? "#9ca3af"
-        : "#6b7280";
-
-    const stocks = [
-        "SBIN",
-        "TCS",
-        "TATAPOWER",
-        "ITC",
-        "INFY",
-        "HDFCBANK",
-        "RELIANCE",
-    ];
+    // ─── Data ───────────────────────────────────────────────────────────────────
+    const stocks = ["SBIN", "TCS", "TATAPOWER", "ITC", "INFY", "HDFCBANK", "RELIANCE"];
 
     const gainers = [
-        {
-            stock: "INDIGO",
-            ltp: "4374",
-            change: "+3.2%",
-        },
-
-        {
-            stock: "TRENT",
-            ltp: "4249",
-            change: "+2.7%",
-        },
-
-        {
-            stock: "CIPLA",
-            ltp: "1362",
-            change: "+2.1%",
-        },
-
-        {
-            stock: "ASIANPAINT",
-            ltp: "2480",
-            change: "+2%",
-        },
+        { stock: "INDIGO",    ltp: "4374", change: "+3.2%" },
+        { stock: "TRENT",     ltp: "4249", change: "+2.7%" },
+        { stock: "CIPLA",     ltp: "1362", change: "+2.1%" },
+        { stock: "ASIANPAINT",ltp: "2480", change: "+2%"   },
     ];
 
     const losers = [
-        {
-            stock: "LT",
-            ltp: "3923",
-            change: "-3.2%",
-        },
-
-        {
-            stock: "ONGC",
-            ltp: "285",
-            change: "-1.6%",
-        },
-
-        {
-            stock: "RELIANCE",
-            ltp: "1446",
-            change: "-1.2%",
-        },
-
-        {
-            stock: "TITAN",
-            ltp: "4336",
-            change: "-0.8%",
-        },
+        { stock: "LT",       ltp: "3923", change: "-3.2%" },
+        { stock: "ONGC",     ltp: "285",  change: "-1.6%" },
+        { stock: "RELIANCE", ltp: "1446", change: "-1.2%" },
+        { stock: "TITAN",    ltp: "4336", change: "-0.8%" },
     ];
 
-    return (
-        <View
-            style={[
-                styles.container,
-                { backgroundColor: bg },
-            ]}
-        >
-            {/* MOBILE SIDEBAR */}
-            <Modal
-                visible={sidebarVisible}
-                transparent
-                animationType="slide"
-            >
-                <View style={styles.modalOverlay}>
-                    <View
-                        style={[
-                            styles.mobileSidebar,
-                            {
-                                backgroundColor: card,
-                            },
-                        ]}
-                    >
-                        <View style={styles.sidebarHeader}>
-                            <Text
-                                style={[
-                                    styles.sidebarTitle,
-                                    { color: text },
-                                ]}
-                            >
-                                Default
-                            </Text>
+    const mostTraded = [
+        "SBIN", "NIFTY 50", "TCS", "TATAPOWER", "KOTAKBANK",
+        "MPHASIS", "INFY", "HCLTECH", "AXISBANK", "NIFTY BANK",
+    ];
 
-                            <TouchableOpacity
-                                onPress={() =>
-                                    setSidebarVisible(false)
-                                }
-                            >
-                                <Ionicons
-                                    name="close"
-                                    size={28}
-                                    color={text}
-                                />
+    const fundLabels = ["Available Funds", "Blocked Funds", "Used Funds", "Today's P/L"];
+
+    const analytics = [
+        { title: "Profit Trades", value: "78%", color: "#22c55e" },
+        { title: "Loss Trades",   value: "22%", color: "#ef4444" },
+        { title: "Breakeven",     value: "10%", color: "#facc15" },
+    ];
+
+    const timeFilters = ["1 Day", "5 Days", "1 Month", "Ytd"];
+    const tableHeaders = ["STOCK", "LTP", "CHANGE", "OPEN", "HIGH", "STOCK", "LTP", "CHANGE", "OPEN", "HIGH"];
+    const profileMenuItems = [
+        "My Account", "Trading Journal", "My Referrals",
+        "Billing History", "Wallet Transactions", "Customer Support",
+    ];
+
+    // ─── Computed sizes ─────────────────────────────────────────────────────────
+    const SIDEBAR_W      = 230;
+    const CONTENT_PX     = isMobile ? 10 : 24;
+    const CARD_RADIUS    = 24;
+    const STOCK_CARD_W   = isMobile ? "47%" : isTablet ? "30%" : 135;
+
+    // ─── Sidebar stock list (shared between mobile modal & desktop) ─────────────
+    const SidebarStockList = () => (
+        <>
+            <TextInput
+                placeholder="Search TCS, INFY..."
+                placeholderTextColor="#888"
+                style={[
+                    styles.searchInput,
+                    { backgroundColor: inputBg, color: text },
+                ]}
+            />
+            {stocks.map((item, i) => (
+                <View key={i} style={styles.stockRow}>
+                    <View>
+                        <Text style={[styles.stockName, { color: text }]}>{item}</Text>
+                        <Text style={[styles.stockType, { color: subText }]}>NSE</Text>
+                    </View>
+                    <Text style={[styles.stockPrice, { color: text }]}>1059.90</Text>
+                </View>
+            ))}
+        </>
+    );
+
+    return (
+        <View style={[styles.container, { backgroundColor: bg }]}>
+
+            {/* ── MOBILE SIDEBAR MODAL ─────────────────────────────────────────── */}
+            <Modal visible={sidebarVisible} transparent animationType="slide">
+                <View style={styles.modalOverlay}>
+                    <SafeAreaView style={[styles.mobileSidebar, { backgroundColor: card }]}>
+                        <View style={styles.sidebarHeader}>
+                            <Text style={[styles.sidebarTitle, { color: text }]}>
+                                {watchlistName}
+                            </Text>
+                            <TouchableOpacity onPress={() => setSidebarVisible(false)}>
+                                <Ionicons name="close" size={28} color={text} />
                             </TouchableOpacity>
                         </View>
-
-                        <TextInput
-                            placeholder="Search TCS, INFY..."
-                            placeholderTextColor="#888"
-                            style={[
-                                styles.searchInput,
-                                {
-                                    backgroundColor:
-                                        darkMode
-                                            ? "#111827"
-                                            : "#f3f4f6",
-
-                                    color: text,
-                                },
-                            ]}
-                        />
-
-                        {stocks.map((item, i) => (
-                            <View
-                                key={i}
-                                style={styles.stockRow}
-                            >
-                                <View>
-                                    <Text
-                                        style={[
-                                            styles.stockName,
-                                            { color: text },
-                                        ]}
-                                    >
-                                        {item}
-                                    </Text>
-
-                                    <Text
-                                        style={[
-                                            styles.stockType,
-                                            {
-                                                color: subText,
-                                            },
-                                        ]}
-                                    >
-                                        NSE
-                                    </Text>
-                                </View>
-
-                                <Text
-                                    style={[
-                                        styles.stockPrice,
-                                        { color: text },
-                                    ]}
-                                >
-                                    1059.90
-                                </Text>
-                            </View>
-                        ))}
-                    </View>
-
+                        <SidebarStockList />
+                    </SafeAreaView>
                     <TouchableOpacity
                         style={styles.remainingOverlay}
-                        onPress={() =>
-                            setSidebarVisible(false)
-                        }
+                        onPress={() => setSidebarVisible(false)}
                     />
                 </View>
             </Modal>
 
-            {/* PROFILE MODAL */}
-            <Modal
-                visible={profileVisible}
-                transparent
-                animationType="fade"
-            >
+            {/* ── PROFILE MODAL ────────────────────────────────────────────────── */}
+            <Modal visible={profileVisible} transparent animationType="fade">
                 <TouchableOpacity
                     style={styles.profileOverlay}
-                    onPress={() =>
-                        setProfileVisible(false)
-                    }
+                    onPress={() => setProfileVisible(false)}
                 />
-
                 <View
                     style={[
                         styles.profileModal,
                         {
                             backgroundColor: card,
+                            right: isMobile ? 10 : 20,
+                            top: STATUS_BAR_OFFSET + (isMobile ? 30 : 20),
+                            width: isMobile ? Math.min(width - 20, 280) : 340,
                         },
                     ]}
                 >
-                    <Text
-                        style={[
-                            styles.profileName,
-                            { color: text },
-                        ]}
-                    >
-                        User
-                    </Text>
-
-                    <Text
-                        style={[
-                            styles.profileMail,
-                            { color: subText },
-                        ]}
-                    >
+                    <Text style={[styles.profileName, { color: text }]}>User</Text>
+                    <Text style={[styles.profileMail, { color: subText }]}>
                         user123@gmail.com
                     </Text>
-
-                    {[
-                        "My Account",
-                        "Trading Journal",
-                        "My Referrals",
-                        "Billing History",
-                        "Wallet Transactions",
-                        "Customer Support",
-                    ].map((item, i) => (
-                        <TouchableOpacity
-                            key={i}
-                            style={styles.profileItem}
-                        >
+                    {profileMenuItems.map((item, i) => (
+                        <TouchableOpacity key={i} style={styles.profileItem}>
                             <Text
-                                style={[
-                                    styles.profileText,
-                                    { color: text },
-                                ]}
+                                style={[styles.profileText, { color: text }]}
+                                numberOfLines={1}
                             >
                                 {item}
                             </Text>
                         </TouchableOpacity>
                     ))}
-
                     <TouchableOpacity
                         style={styles.logoutBtn}
                         onPress={() => {
@@ -297,346 +197,144 @@ export default function Dashboard() {
                             router.replace("/");
                         }}
                     >
-                        <Text
-                            style={[
-                                styles.logoutText,
-                                { color: "#fff" },
-                            ]}
-                        >
-                            Logout
-                        </Text>
+                        <Text style={styles.logoutText}>Logout</Text>
                     </TouchableOpacity>
                 </View>
             </Modal>
 
-            <View
-                style={[
-                    styles.layout,
-                    {
-                        flexDirection: isMobile
-                            ? "column"
-                            : "row",
-                    },
-                ]}
-            >
+            {/* ── MAIN LAYOUT ──────────────────────────────────────────────────── */}
+            <View style={[styles.layout, { flexDirection: isMobile ? "column" : "row" }]}>
 
-                {/* WATCHLIST MODAL */}
-                <Modal
-                    visible={watchlistModal}
-                    transparent
-                    animationType="fade"
-                >
+                {/* ── WATCHLIST MODAL ────────────────────────────────────────── */}
+                <Modal visible={watchlistModal} transparent animationType="fade">
                     <TouchableOpacity
                         style={styles.profileOverlay}
-                        onPress={() =>
-                            setWatchlistModal(false)
-                        }
+                        onPress={() => setWatchlistModal(false)}
                     />
-
                     <View
                         style={[
                             styles.watchlistModal,
                             {
                                 backgroundColor: card,
+                                top: STATUS_BAR_OFFSET + (isMobile ? 60 : 120),
+                                left: isMobile ? 10 : 20,
+                                width: isMobile ? width - 20 : 460,
                             },
                         ]}
                     >
-                        <Text
-                            style={{
-                                color: text,
-                                fontSize: 30,
-                                fontWeight: "700",
-                            }}
-                        >
+                        <Text style={{ color: text, fontSize: isMobile ? 22 : 30, fontWeight: "700" }}>
                             Manage Watchlists
                         </Text>
-
-                        <Text
-                            style={{
-                                color: subText,
-                                marginTop: 10,
-                            }}
-                        >
+                        <Text style={{ color: subText, marginTop: 10 }}>
                             Add or delete your watchlists
                         </Text>
-
-                        <View
-                            style={{
-                                marginTop: 30,
-                            }}
-                        >
-                            <Text
-                                style={{
-                                    color: text,
-                                    fontSize: 18,
-                                }}
-                            >
-                                {watchlistName}
-                            </Text>
+                        <View style={{ marginTop: 30 }}>
+                            <Text style={{ color: text, fontSize: 18 }}>{watchlistName}</Text>
                         </View>
-
-                        <TouchableOpacity
-                            style={{
-                                marginTop: 30,
-                            }}
-                        >
-                            <Text
-                                style={{
-                                    color: "#3b82f6",
-                                    fontSize: 18,
-                                    fontWeight: "600",
-                                }}
-                            >
+                        <TouchableOpacity style={{ marginTop: 30 }}>
+                            <Text style={{ color: "#3b82f6", fontSize: 18, fontWeight: "600" }}>
                                 + New List
                             </Text>
                         </TouchableOpacity>
                     </View>
                 </Modal>
-                {/* DESKTOP SIDEBAR */}
+
+                {/* ── DESKTOP SIDEBAR ────────────────────────────────────────── */}
                 {!isMobile && (
-                    <View
-                        style={[
-                            styles.sidebar,
-                            {
-                                backgroundColor: card,
-                            },
-                        ]}
-                    >
+                    <View style={[styles.sidebar, { backgroundColor: card }]}>
                         <View style={styles.sidebarHeader}>
                             {editingWatchlist ? (
                                 <TextInput
                                     value={watchlistName}
                                     onChangeText={setWatchlistName}
-                                    onBlur={() =>
-                                        setEditingWatchlist(false)
-                                    }
+                                    onBlur={() => setEditingWatchlist(false)}
                                     autoFocus
                                     style={{
                                         color: text,
                                         fontSize: 24,
                                         fontWeight: "700",
                                         padding: 0,
+                                        flex: 1,
+                                        marginRight: 10,
                                     }}
                                 />
                             ) : (
                                 <Text
-                                    style={[
-                                        styles.sidebarTitle,
-                                        { color: text },
-                                    ]}
+                                    style={[styles.sidebarTitle, { color: text, flex: 1 }]}
+                                    numberOfLines={1}
                                 >
                                     {watchlistName}
                                 </Text>
                             )}
-
-                            <View
-                                style={{
-                                    flexDirection: "row",
-                                    gap: 14,
-                                }}
-                            >
-                                {/* EDIT */}
+                            <View style={{ flexDirection: "row", gap: 10, flexShrink: 0 }}>
                                 <TouchableOpacity
-                                    onPress={() =>
-                                        setEditingWatchlist(true)
-                                    }
+                                    onPress={() => setEditingWatchlist(true)}
+                                    style={[styles.iconSquare, { backgroundColor: inputBg }]}
                                 >
-                                    <Feather
-                                        name="edit"
-                                        size={20}
-                                        color={text}
-                                    />
+                                    <Feather name="edit" size={16} color={text} />
                                 </TouchableOpacity>
-
-
-                                {/* WATCHLIST */}
                                 <TouchableOpacity
-                                    onPress={() =>
-                                        setWatchlistModal(true)
-                                    }
+                                    onPress={() => setWatchlistModal(true)}
+                                    style={[styles.iconSquare, { backgroundColor: inputBg }]}
                                 >
-                                    <Ionicons
-                                        name="add-outline"
-                                        size={24}
-                                        color={text}
-                                    />
+                                    <Ionicons name="add-outline" size={20} color={text} />
                                 </TouchableOpacity>
                             </View>
                         </View>
-
-                        <TextInput
-                            placeholder="Search TCS, INFY..."
-                            placeholderTextColor="#888"
-                            style={[
-                                styles.searchInput,
-                                {
-                                    backgroundColor:
-                                        darkMode
-                                            ? "#111827"
-                                            : "#f3f4f6",
-
-                                    color: text,
-                                },
-                            ]}
-                        />
-
-                        {stocks.map((item, i) => (
-                            <View
-                                key={i}
-                                style={styles.stockRow}
-                            >
-                                <View>
-                                    <Text
-                                        style={[
-                                            styles.stockName,
-                                            { color: text },
-                                        ]}
-                                    >
-                                        {item}
-                                    </Text>
-
-                                    <Text
-                                        style={[
-                                            styles.stockType,
-                                            {
-                                                color: subText,
-                                            },
-                                        ]}
-                                    >
-                                        NSE
-                                    </Text>
-                                </View>
-
-                                <Text
-                                    style={[
-                                        styles.stockPrice,
-                                        { color: text },
-                                    ]}
-                                >
-                                    1059.90
-                                </Text>
-                            </View>
-                        ))}
+                        <SidebarStockList />
                     </View>
                 )}
 
-                {/* MAIN CONTENT */}
+                {/* ── MAIN CONTENT ───────────────────────────────────────────── */}
                 <ScrollView
-                    style={styles.content}
-                    showsVerticalScrollIndicator={
-                        false
-                    }
+                    style={[styles.content, { paddingHorizontal: CONTENT_PX }]}
+                    showsVerticalScrollIndicator={false}
                 >
-                    {/* TOPBAR */}
+                    {/* ── TOPBAR ─────────────────────────────────────────────── */}
                     <View
                         style={[
                             styles.topbar,
                             {
-                                flexDirection: isMobile
-                                    ? "column"
-                                    : "row",
+                                flexDirection: isMobile ? "column" : "row",
+                                alignItems: isMobile ? "flex-start" : "center",
                             },
                         ]}
                     >
-                        {/* MOBILE MENU */}
+                        {/* Mobile hamburger */}
                         {isMobile && (
                             <TouchableOpacity
-                                onPress={() =>
-                                    setSidebarVisible(true)
-                                }
+                                onPress={() => setSidebarVisible(true)}
+                                style={{ marginBottom: 12 }}
                             >
-                                <Feather
-                                    name="menu"
-                                    size={32}
-                                    color={text}
-                                />
+                                <Feather name="menu" size={32} color={text} />
                             </TouchableOpacity>
                         )}
 
-                        {/* MARKET */}
-                        <View style={styles.marketRow}>
-                            <View
-                                style={[
-                                    styles.marketCard,
-                                    {
-                                        backgroundColor:
-                                            darkMode
-                                                ? "#111827"
-                                                : "#fff",
-                                    },
-                                ]}
-                            >
-                                <Text
-                                    style={[
-                                        styles.marketTitle,
-                                        {
-                                            color: subText,
-                                        },
-                                    ]}
+                        {/* Market index pills */}
+                        <View style={[styles.marketRow, { flex: isMobile ? 0 : 1 }]}>
+                            {["NIFTY 50", "BANK NIFTY"].map((label, i) => (
+                                <View
+                                    key={i}
+                                    style={[styles.marketCard, { backgroundColor: inputBg }]}
                                 >
-                                    NIFTY 50
-                                </Text>
-
-                                <Text
-                                    style={[
-                                        styles.marketValue,
-                                        { color: text },
-                                    ]}
-                                >
-                                    24,114.95
-                                </Text>
-                            </View>
-
-                            <View
-                                style={[
-                                    styles.marketCard,
-                                    {
-                                        backgroundColor:
-                                            darkMode
-                                                ? "#111827"
-                                                : "#fff",
-                                    },
-                                ]}
-                            >
-                                <Text
-                                    style={[
-                                        styles.marketTitle,
-                                        {
-                                            color: subText,
-                                        },
-                                    ]}
-                                >
-                                    BANK NIFTY
-                                </Text>
-
-                                <Text
-                                    style={[
-                                        styles.marketValue,
-                                        { color: text },
-                                    ]}
-                                >
-                                    54,547.05
-                                </Text>
-                            </View>
+                                    <Text style={[styles.marketTitle, { color: subText }]}>
+                                        {label}
+                                    </Text>
+                                    <Text style={[styles.marketValue, { color: text }]}>
+                                        {i === 0 ? "24,114.95" : "54,547.05"}
+                                    </Text>
+                                </View>
+                            ))}
                         </View>
 
-                        {/* NAV */}
-                        <View style={styles.navRow}>
-                            {[
-                                "HOME",
-                                "ORDERS",
-                                "FUNDS",
-                            ].map((item, i) => (
+                        {/* Nav links — centred on desktop */}
+                        <View style={[styles.navRow, { flex: isMobile ? 0 : 1, justifyContent: "center" }]}>
+                            {["HOME", "ORDERS", "FUNDS"].map((item, i) => (
                                 <Text
                                     key={i}
                                     style={[
                                         styles.navText,
-                                        {
-                                            color:
-                                                i === 0
-                                                    ? "#fbbf24"
-                                                    : subText,
-                                        },
+                                        { color: i === 0 ? "#fbbf24" : subText },
                                     ]}
                                 >
                                     {item}
@@ -644,189 +342,106 @@ export default function Dashboard() {
                             ))}
                         </View>
 
-                        {/* ICONS */}
-                        <View style={styles.iconRow}>
+                        {/* Icon group — right-aligned on desktop */}
+                        <View
+                            style={[
+                                styles.iconRow,
+                                {
+                                    flex: isMobile ? 0 : 1,
+                                    justifyContent: isMobile ? "flex-start" : "flex-end",
+                                },
+                            ]}
+                        >
                             <TouchableOpacity
-                                style={[
-                                    styles.iconBtn,
-                                    {
-                                        backgroundColor:
-                                            darkMode
-                                                ? "#111827"
-                                                : "#fff",
-                                    },
-                                ]}
-                                onPress={() =>
-                                    setDarkMode(!darkMode)
-                                }
+                                style={[styles.iconBtn, { backgroundColor: inputBg }]}
+                                onPress={() => setDarkMode(!darkMode)}
                             >
                                 <Ionicons
-                                    name={
-                                        darkMode
-                                            ? "sunny"
-                                            : "moon"
-                                    }
+                                    name={darkMode ? "sunny" : "moon"}
                                     size={20}
                                     color={text}
                                 />
                             </TouchableOpacity>
 
-                            <Ionicons
-                                name="notifications"
-                                size={24}
-                                color={text}
-                            />
+                            <Ionicons name="notifications" size={24} color={text} />
 
-                            <TouchableOpacity
-                                onPress={() =>
-                                    setProfileVisible(true)
-                                }
-                            >
-                                <FontAwesome5
-                                    name="user-circle"
-                                    size={38}
-                                    color={text}
-                                />
+                            <TouchableOpacity onPress={() => setProfileVisible(true)}>
+                                <FontAwesome5 name="user-circle" size={isMobile ? 34 : 38} color={text} />
                             </TouchableOpacity>
                         </View>
                     </View>
 
-                    {/* WELCOME */}
-                    <Text
-                        style={[
-                            styles.welcome,
-                            { color: text },
-                        ]}
-                    >
+                    {/* ── WELCOME ────────────────────────────────────────────── */}
+                    <Text style={[styles.welcome, { color: text, fontSize: isMobile ? 28 : 42 }]}>
                         Welcome Back 👋
                     </Text>
 
-                    {/* FUND CARDS */}
+                    {/* ── FUND CARDS ─────────────────────────────────────────── */}
                     <View
                         style={[
                             styles.fundWrapper,
-                            {
-                                flexDirection: isMobile
-                                    ? "column"
-                                    : "row",
-                            },
+                            { flexDirection: isMobile ? "column" : "row" },
                         ]}
                     >
-                        {[
-                            "Available Funds",
-                            "Blocked Funds",
-                            "Used Funds",
-                            "Today's P/L",
-                        ].map((item, i) => (
+                        {fundLabels.map((item, i) => (
                             <LinearGradient
                                 key={i}
                                 colors={
                                     darkMode
-                                        ? [
-                                            "#07122e",
-                                            "#08142f",
-                                        ]
-                                        : [
-                                            "#ffffff",
-                                            "#f9fafb",
-                                        ]
+                                        ? ["#07122e", "#08142f"]
+                                        : ["#ffffff", "#f9fafb"]
                                 }
-                                style={styles.fundCard}
+                                style={[
+                                    styles.fundCard,
+                                    {
+                                        width: isMobile ? "100%" : undefined,
+                                        flex: isMobile ? undefined : 1,
+                                        minWidth: isMobile ? undefined : 0, // prevent overflow
+                                    },
+                                ]}
                             >
-                                <Text
-                                    style={[
-                                        styles.fundTitle,
-                                        {
-                                            color: subText,
-                                        },
-                                    ]}
-                                >
-                                    {item}
-                                </Text>
-
-                                <Text
-                                    style={[
-                                        styles.fundValue,
-                                        { color: text },
-                                    ]}
-                                >
-                                    ₹100000
+                                <Text style={[styles.fundTitle, { color: subText }]}>{item}</Text>
+                                <Text style={[styles.fundValue, { color: text, fontSize: isMobile ? 20 : 34 }]}>
+                                    ₹1,00,000
                                 </Text>
                             </LinearGradient>
                         ))}
                     </View>
 
-                    {/* ANALYTICS */}
-                    <Text
-                        style={[
-                            styles.sectionTitle,
-                            { color: text },
-                        ]}
-                    >
+                    {/* ── TRADE ANALYTICS ────────────────────────────────────── */}
+                    <Text style={[styles.sectionTitle, { color: text, fontSize: isMobile ? 20 : 28 }]}>
                         Trade Analytics
                     </Text>
-
                     <View
                         style={[
                             styles.analyticsWrapper,
-                            {
-                                flexDirection: isMobile
-                                    ? "column"
-                                    : "row",
-                            },
+                            { flexDirection: isMobile ? "column" : "row" },
                         ]}
                     >
-                        {[
-                            {
-                                title: "Profit Trades",
-                                value: "78%",
-                                color: "#22c55e",
-                            },
-
-                            {
-                                title: "Loss Trades",
-                                value: "22%",
-                                color: "#ef4444",
-                            },
-
-                            {
-                                title: "Breakeven",
-                                value: "10%",
-                                color: "#facc15",
-                            },
-                        ].map((item, i) => (
+                        {analytics.map((item, i) => (
                             <LinearGradient
                                 key={i}
-                                colors={[
-                                    `${item.color}35`,
-                                    `${item.color}10`,
+                                colors={[`${item.color}35`, `${item.color}10`]}
+                                style={[
+                                    styles.analyticsCard,
+                                    {
+                                        width: isMobile ? "100%" : undefined,
+                                        flex: isMobile ? undefined : 1,
+                                        minWidth: isMobile ? undefined : 0,
+                                    },
                                 ]}
-                                style={styles.analyticsCard}
                             >
-                                <Text
-                                    style={[
-                                        styles.analyticsPercent,
-                                        { color: text },
-                                    ]}
-                                >
+                                <Text style={[styles.analyticsPercent, { color: text }]}>
                                     {item.value}
                                 </Text>
-
-                                <Text
-                                    style={styles.analyticsTitle}
-                                >
+                                <Text style={[styles.analyticsTitle, { color: text }]}>
                                     {item.title}
                                 </Text>
-
                                 <View style={styles.progressBg}>
                                     <View
                                         style={[
                                             styles.progressFill,
-                                            {
-                                                width: item.value,
-                                                backgroundColor:
-                                                    item.color,
-                                            },
+                                            { width: item.value, backgroundColor: item.color },
                                         ]}
                                     />
                                 </View>
@@ -834,405 +449,280 @@ export default function Dashboard() {
                         ))}
                     </View>
 
-                    {/* MARKET INDEX GRAPH */}
-<View
-  style={[
-    styles.topMoverCard,
-    {
-      backgroundColor: card,
-      marginTop: 30,
-    },
-  ]}
->
-  <View
-    style={{
-      flexDirection: isMobile ? "column" : "row",
-      justifyContent: "space-between",
-      alignItems: isMobile ? "flex-start" : "center",
-      marginBottom: 20,
-      gap: 14,
-    }}
-  >
-    <View>
-      <Text
-        style={{
-          color: subText,
-          fontSize: 12,
-          letterSpacing: 1,
-        }}
-      >
-        MARKET INDEX
-      </Text>
+                    {/* ── MARKET INDEX CHART ─────────────────────────────────── */}
+                    <View style={[styles.sectionCard, { backgroundColor: card }]}>
+                        {/* Header */}
+                        <View
+                            style={{
+                                flexDirection: isMobile ? "column" : "row",
+                                justifyContent: "space-between",
+                                alignItems: isMobile ? "flex-start" : "center",
+                                marginBottom: 20,
+                                gap: 14,
+                            }}
+                        >
+                            <View>
+                                <Text style={{ color: subText, fontSize: 12, letterSpacing: 1 }}>
+                                    MARKET INDEX
+                                </Text>
+                                <Text
+                                    style={{
+                                        color: text,
+                                        fontSize: isMobile ? 24 : 46,
+                                        fontWeight: "800",
+                                        marginTop: 4,
+                                    }}
+                                >
+                                    NIFTY 50
+                                </Text>
+                                <View style={{ flexDirection: "row", alignItems: "center", marginTop: 10, flexWrap: "wrap" }}>
+                                    <Text
+                                        style={{
+                                            color: text,
+                                            fontSize: isMobile ? 22 : 34,
+                                            fontWeight: "700",
+                                        }}
+                                    >
+                                        24,336.15
+                                    </Text>
+                                    <Text
+                                        style={{
+                                            color: "#22c55e",
+                                            fontSize: isMobile ? 16 : 26,
+                                            fontWeight: "700",
+                                            marginLeft: 10,
+                                        }}
+                                    >
+                                        +2.05 (+0.01%)
+                                    </Text>
+                                </View>
+                            </View>
 
-      <Text
-        style={{
-          color: text,
-          fontSize: isMobile ? 34 : 52,
-          fontWeight: "800",
-          marginTop: 4,
-        }}
-      >
-        NIFTY 50
-      </Text>
+                            {/* Time filters */}
+                            <View style={{ flexDirection: "row", gap: 10, flexWrap: "wrap" }}>
+                                {timeFilters.map((item, i) => (
+                                    <TouchableOpacity
+                                        key={i}
+                                        style={{
+                                            borderWidth: 1,
+                                            borderColor: i === 2
+                                                ? (darkMode ? "#ffffff" : "#111827")
+                                                : "rgba(128,128,128,0.3)",
+                                            paddingHorizontal: 16,
+                                            paddingVertical: 10,
+                                            borderRadius: 999,
+                                            backgroundColor: i === 2
+                                                ? (darkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)")
+                                                : "transparent",
+                                        }}
+                                    >
+                                        <Text style={{ color: text, fontWeight: "600" }}>{item}</Text>
+                                    </TouchableOpacity>
+                                ))}
+                            </View>
+                        </View>
 
-      <View
-        style={{
-          flexDirection: "row",
-          alignItems: "center",
-          marginTop: 10,
-          flexWrap: "wrap",
-        }}
-      >
-        <Text
-          style={{
-            color: text,
-            fontSize: isMobile ? 22 : 34,
-            fontWeight: "700",
-          }}
-        >
-          24,336.15
-        </Text>
+                        {/* Chart — width measured from its container */}
+                        <View
+                            style={[
+                                styles.chartWrapper,
+                                { backgroundColor: darkMode ? "#111111" : "#f8fafc" },
+                            ]}
+                            onLayout={(e) => {
+                                const w = e.nativeEvent.layout.width;
+                                if (w > 0) setChartWidth(w - (isMobile ? 24 : 40));
+                            }}
+                        >
+                            <LineChart
+                                data={{
+                                    labels: ["5/7", "5/7", "5/7", "5/7"],
+                                    datasets: [{ data: [24330, 24290, 24360, 24336] }],
+                                }}
+                                width={chartWidth}
+                                height={isMobile ? 220 : 300}
+                                bezier
+                                withDots
+                                withInnerLines
+                                withOuterLines={false}
+                                chartConfig={{
+                                    backgroundGradientFrom: darkMode ? "#111111" : "#f8fafc",
+                                    backgroundGradientTo:   darkMode ? "#111111" : "#f8fafc",
+                                    decimalPlaces: 0,
+                                    color: () => "#4ade80",
+                                    labelColor: () => (darkMode ? "#9ca3af" : "#6b7280"),
+                                    propsForDots: { r: "5", strokeWidth: "2", stroke: "#4ade80" },
+                                }}
+                                style={{ borderRadius: 20 }}
+                            />
+                        </View>
+                    </View>
 
-        <Text
-          style={{
-            color: "#22c55e",
-            fontSize: isMobile ? 18 : 28,
-            fontWeight: "700",
-            marginLeft: 10,
-          }}
-        >
-          +2.05 (+0.01%)
-        </Text>
-      </View>
-    </View>
+                    {/* ── MOST TRADED STOCKS ─────────────────────────────────── */}
+                    <View style={{ marginTop: 24 }}>
+                        <Text
+                            style={{
+                                color: text,
+                                fontSize: isMobile ? 20 : 28,
+                                fontWeight: "800",
+                                marginBottom: 18,
+                            }}
+                        >
+                            Most Traded Stocks on Methoda
+                        </Text>
 
-    <View
-      style={{
-        flexDirection: "row",
-        gap: 10,
-        flexWrap: "wrap",
-      }}
-    >
-      {["1 Day", "5 Days", "1 Month", "Ytd"].map(
-        (item, i) => (
-          <TouchableOpacity
-            key={i}
-            style={{
-              borderWidth: 1,
-              borderColor:
-                i === 2
-                  ? "#ffffff"
-                  : "rgba(255,255,255,0.1)",
-              paddingHorizontal: 16,
-              paddingVertical: 10,
-              borderRadius: 999,
-              backgroundColor:
-                i === 2
-                  ? "rgba(255,255,255,0.08)"
-                  : "transparent",
-            }}
-          >
-            <Text
-              style={{
-                color: text,
-                fontWeight: "600",
-              }}
-            >
-              {item}
-            </Text>
-          </TouchableOpacity>
-        )
-      )}
-    </View>
-  </View>
+                        <View
+                            style={{
+                                flexDirection: "row",
+                                flexWrap: "wrap",
+                                rowGap: 16,
+                                columnGap: 16,
+                                alignItems: "flex-start",
+                            }}
+                        >
+                            {mostTraded.map((item, i) => (
+                                <View
+                                    key={i}
+                                    style={{
+                                        width: STOCK_CARD_W,
+                                        minWidth: 110,
+                                        backgroundColor: card,
+                                        borderRadius: 20,
+                                        paddingVertical: 16,
+                                        paddingHorizontal: 12,
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        borderWidth: 1,
+                                        borderColor: border,
+                                        overflow: "hidden",
+                                    }}
+                                >
+                                    <Text
+                                        numberOfLines={1}
+                                        adjustsFontSizeToFit
+                                        style={{
+                                            color: text,
+                                            fontSize: isMobile ? 18 : 15,
+                                            fontWeight: "700",
+                                            textAlign: "center",
+                                            lineHeight: isMobile ? 22 : 18,
+                                        }}
+                                    >
+                                        {item}
+                                    </Text>
+                                    <Text
+                                        style={{
+                                            color: subText,
+                                            fontSize: isMobile ? 12 : 13,
+                                            marginTop: 5,
+                                            textAlign: "center",
+                                        }}
+                                    >
+                                        ₹2,430.95 0.00%
+                                    </Text>
+                                    <View
+                                        style={{
+                                            flexDirection: "row",
+                                            gap: 10,
+                                            alignItems: "center",
+                                            marginTop: 10,
+                                        }}
+                                    >
+                                        <TouchableOpacity style={styles.buyBtn}>
+                                            <Text style={{ color: "#22c55e", fontWeight: "700" }}>B</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity style={styles.sellBtn}>
+                                            <Text style={{ color: "#ef4444", fontWeight: "700" }}>S</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                </View>
+                            ))}
+                        </View>
+                    </View>
 
-  {/* GRAPH */}
-  <View
-    style={[
-      styles.chartWrapper,
-      {
-        backgroundColor: darkMode
-          ? "#111111"
-          : "#f8fafc",
-      },
-    ]}
-  >
-    <LineChart
-      data={{
-        labels: ["5/7", "5/7", "5/7", "5/7"],
-        datasets: [
-          {
-            data: [24330, 24290, 24360, 24336],
-          },
-        ],
-      }}
-      width={
-        isMobile
-          ? width - 70
-          : width - 500
-      }
-      height={isMobile ? 220 : 320}
-      bezier
-      withDots
-      withInnerLines
-      withOuterLines={false}
-      chartConfig={{
-        backgroundGradientFrom: darkMode
-          ? "#111111"
-          : "#ffffff",
+                    {/* ── TOP MOVERS ─────────────────────────────────────────── */}
+                    <View style={[styles.sectionCard, { backgroundColor: card, marginTop: 30 }]}>
+                        {/* Header row */}
+                        <View
+                            style={{
+                                flexDirection: isMobile ? "column" : "row",
+                                justifyContent: "space-between",
+                                alignItems: isMobile ? "flex-start" : "center",
+                                marginBottom: 20,
+                                gap: 12,
+                            }}
+                        >
+                            <Text style={{ color: text, fontSize: isMobile ? 18 : 20, fontWeight: "800" }}>
+                                Top Movers
+                            </Text>
+                            <View style={{ flexDirection: "row", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+                                <View style={[styles.tagPill, { backgroundColor: tagBg }]}>
+                                    <Text style={{ color: text, fontWeight: "600", fontSize: isMobile ? 12 : 14 }}>
+                                        Last Updated - 07 May 2026
+                                    </Text>
+                                </View>
+                                <View style={[styles.tagPill, { borderWidth: 1, borderColor: border }]}>
+                                    <Text style={{ color: text, fontWeight: "600", fontSize: isMobile ? 12 : 14 }}>
+                                        NSE ▼
+                                    </Text>
+                                </View>
+                            </View>
+                        </View>
 
-        backgroundGradientTo: darkMode
-          ? "#111111"
-          : "#ffffff",
+                        {/* Gainer / Loser labels */}
+                        <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 14 }}>
+                            <View style={styles.gainerLabel}>
+                                <Text style={{ color: "#22c55e", fontWeight: "700", fontSize: isMobile ? 14 : 16 }}>
+                                    Top Gainers
+                                </Text>
+                            </View>
+                            <View style={styles.loserLabel}>
+                                <Text style={{ color: "#ef4444", fontWeight: "700", fontSize: isMobile ? 14 : 16 }}>
+                                    Top Losers
+                                </Text>
+                            </View>
+                        </View>
 
-        decimalPlaces: 0,
+                        {/* Horizontally scrollable table */}
+                        <ScrollView
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            contentContainerStyle={{ flexGrow: 1 }}
+                        >
+                            <View style={{ minWidth: 900, width: "100%" }}>
+                                {/* Table header */}
+                                <View
+                                    style={[
+                                        styles.tableHeader,
+                                        { backgroundColor: tagBg },
+                                    ]}
+                                >
+                                    {tableHeaders.map((h, i) => (
+                                        <Text key={i} style={[styles.tableHead, { fontSize: isMobile ? 11 : 13 }]}>
+                                            {h}
+                                        </Text>
+                                    ))}
+                                </View>
 
-        color: () => "#4ade80",
-
-        labelColor: () =>
-          darkMode ? "#9ca3af" : "#6b7280",
-
-        propsForDots: {
-          r: "5",
-          strokeWidth: "2",
-          stroke: "#4ade80",
-        },
-      }}
-      style={styles.chart}
-    />
-  </View>
-</View>
-
-                    {/* TOP MOVERS */}
-                    <View
-  style={[
-    styles.topMoverCard,
-    { backgroundColor: card }
-  ]}
->
-  {/* TOP BAR */}
-  <View
-    style={{
-      flexDirection: isMobile ? "column" : "row",
-      justifyContent: "space-between",
-      alignItems: isMobile ? "flex-start" : "center",
-      marginBottom: 20,
-      gap: 12,
-    }}
-  >
-    <Text
-      style={{
-        color: text,
-        fontSize: isMobile ? 28 : 36,
-        fontWeight: "800",
-      }}
-    >
-      Top Movers
-    </Text>
-
-    <View
-      style={{
-        flexDirection: "row",
-        gap: 12,
-        alignItems: "center",
-      }}
-    >
-      <View
-        style={{
-          backgroundColor: darkMode
-            ? "#1f2937"
-            : "#e5e7eb",
-          paddingHorizontal: 16,
-          paddingVertical: 10,
-          borderRadius: 14,
-        }}
-      >
-        <Text
-          style={{
-            color: text,
-            fontWeight: "600",
-          }}
-        >
-          Last Updated - 07 May 2026
-        </Text>
-      </View>
-
-      <View
-        style={{
-          borderWidth: 1,
-          borderColor: "rgba(255,255,255,0.1)",
-          paddingHorizontal: 18,
-          paddingVertical: 10,
-          borderRadius: 14,
-        }}
-      >
-        <Text
-          style={{
-            color: text,
-            fontWeight: "600",
-          }}
-        >
-          NSE ▼
-        </Text>
-      </View>
-    </View>
-  </View>
-
-  {/* GAINER / LOSER LABELS */}
-  <View
-    style={{
-      flexDirection: "row",
-      justifyContent: "space-between",
-      marginBottom: 14,
-    }}
-  >
-    <View
-      style={{
-        backgroundColor: "rgba(34,197,94,0.12)",
-        paddingHorizontal: 14,
-        paddingVertical: 8,
-        borderRadius: 10,
-      }}
-    >
-      <Text
-        style={{
-          color: "#22c55e",
-          fontWeight: "700",
-          fontSize: 16,
-        }}
-      >
-        Top Gainers
-      </Text>
-    </View>
-
-    <View
-      style={{
-        backgroundColor: "rgba(239,68,68,0.12)",
-        paddingHorizontal: 14,
-        paddingVertical: 8,
-        borderRadius: 10,
-      }}
-    >
-      <Text
-        style={{
-          color: "#ef4444",
-          fontWeight: "700",
-          fontSize: 16,
-        }}
-      >
-        Top Losers
-      </Text>
-    </View>
-  </View>
-
-  {/* TABLE */}
-  <ScrollView
-    horizontal
-    contentContainerStyle={{
-    flexGrow: 1,
-  }}
-    showsHorizontalScrollIndicator={false}
-  >
-    <View
-      style={{
-        minWidth: isMobile ? 1000 : "undefined",
-        width: "100%",
-      }}
-    >
-      {/* HEADER */}
-      <View
-        style={[
-          styles.tableHeader,
-          {
-            backgroundColor: darkMode
-              ? "#1f2937"
-              : "#e5e7eb",
-          },
-        ]}
-      >
-        {[
-          "STOCK",
-          "LTP",
-          "CHANGE",
-          "OPEN",
-          "HIGH",
-          "STOCK",
-          "LTP",
-          "CHANGE",
-          "OPEN",
-          "HIGH",
-        ].map((item, i) => (
-          <Text
-            key={i}
-            style={styles.tableHead}
-          >
-            {item}
-          </Text>
-        ))}
-      </View>
-
-      {/* ROWS */}
-      {gainers.map((item, i) => (
-        <View
-          key={i}
-          style={styles.tableRow}
-        >
-          {/* LEFT */}
-          <Text style={[styles.tableCell, { color: text }]}>
-            {item.stock}
-          </Text>
-
-          <Text style={[styles.tableCell, { color: text }]}>
-            ₹{item.ltp}
-          </Text>
-
-          <Text
-            style={[
-              styles.tableCell,
-              { color: "#22c55e" },
-            ]}
-          >
-            {item.change}
-          </Text>
-
-          <Text style={[styles.tableCell, { color: text }]}>
-            4320
-          </Text>
-
-          <Text style={[styles.tableCell, { color: text }]}>
-            4393
-          </Text>
-
-          {/* RIGHT */}
-          <Text style={[styles.tableCell, { color: text }]}>
-            {losers[i].stock}
-          </Text>
-
-          <Text style={[styles.tableCell, { color: text }]}>
-            ₹{losers[i].ltp}
-          </Text>
-
-          <Text
-            style={[
-              styles.tableCell,
-              { color: "#ef4444" },
-            ]}
-          >
-            {losers[i].change}
-          </Text>
-
-          <Text style={[styles.tableCell, { color: text }]}>
-            3974
-          </Text>
-
-          <Text style={[styles.tableCell, { color: text }]}>
-            3974
-          </Text>
-        </View>
-      ))}
-    </View>
-  </ScrollView>
-</View>
+                                {/* Rows */}
+                                {gainers.map((g, i) => (
+                                    <View key={i} style={[styles.tableRow, { borderBottomColor: border }]}>
+                                        {/* Gainers */}
+                                        <Text style={[styles.tableCell, { color: text,      fontSize: isMobile ? 11 : 13 }]}>{g.stock}</Text>
+                                        <Text style={[styles.tableCell, { color: text,      fontSize: isMobile ? 11 : 13 }]}>₹{g.ltp}</Text>
+                                        <Text style={[styles.tableCell, { color: "#22c55e", fontSize: isMobile ? 11 : 13 }]}>{g.change}</Text>
+                                        <Text style={[styles.tableCell, { color: text,      fontSize: isMobile ? 11 : 13 }]}>4320</Text>
+                                        <Text style={[styles.tableCell, { color: text,      fontSize: isMobile ? 11 : 13 }]}>4393</Text>
+                                        {/* Losers */}
+                                        <Text style={[styles.tableCell, { color: text,      fontSize: isMobile ? 11 : 13 }]}>{losers[i].stock}</Text>
+                                        <Text style={[styles.tableCell, { color: text,      fontSize: isMobile ? 11 : 13 }]}>₹{losers[i].ltp}</Text>
+                                        <Text style={[styles.tableCell, { color: "#ef4444", fontSize: isMobile ? 11 : 13 }]}>{losers[i].change}</Text>
+                                        <Text style={[styles.tableCell, { color: text,      fontSize: isMobile ? 11 : 13 }]}>3974</Text>
+                                        <Text style={[styles.tableCell, { color: text,      fontSize: isMobile ? 11 : 13 }]}>3974</Text>
+                                    </View>
+                                ))}
+                            </View>
+                        </ScrollView>
+                    </View>
 
                     <View style={{ height: 60 }} />
                 </ScrollView>
@@ -1241,341 +731,312 @@ export default function Dashboard() {
     );
 }
 
+// ─── Base styles (no isMobile — all responsive values live in JSX) ──────────────
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    
+    container: {
+        flex: 1,
+    },
+    layout: {
+        flex: 1,
+    },
 
-  },
+    // Sidebar
+    sidebar: {
+        width: 230,
+        padding: 20,
+        overflow: "hidden",
+    },
+    mobileSidebar: {
+        width: "80%",
+        height: "100%",
+        padding: 16,
+    },
+    modalOverlay: {
+        flex: 1,
+        flexDirection: "row",
+    },
+    remainingOverlay: {
+        flex: 1,
+        backgroundColor: "rgba(0,0,0,0.45)",
+    },
+    sidebarHeader: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginBottom: 20,
+    },
+    sidebarTitle: {
+        fontSize: 24,
+        fontWeight: "800",
+    },
+    iconSquare: {
+        width: 34,
+        height: 34,
+        borderRadius: 10,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    searchInput: {
+        padding: 14,
+        borderRadius: 16,
+        marginBottom: 24,
+        fontSize: 15,
+    },
+    stockRow: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginBottom: 22,
+    },
+    stockName: {
+        fontWeight: "700",
+        fontSize: 16,
+    },
+    stockType: {
+        marginTop: 4,
+        fontSize: 12,
+    },
+    stockPrice: {
+        fontSize: 16,
+    },
 
-  layout: {
-    flex: 1,
-    flexDirection: isMobile ? "column" : "row",
-  },
+    // Main content
+    content: {
+        flex: 1,
+        paddingTop: 16,
+    },
 
-  sidebar: {
-    width: 320,
-    padding: 20,
-  },
+    // Topbar
+    topbar: {
+        gap: 16,
+        width: "100%",
+    },
+    marketRow: {
+        flexDirection: "row",
+        gap: 12,
+        flexWrap: "wrap",
+    },
+    marketCard: {
+        paddingVertical: 14,
+        paddingHorizontal: 18,
+        borderRadius: 18,
+        minWidth: 130,
+    },
+    marketTitle: {
+        fontSize: 11,
+        letterSpacing: 0.5,
+    },
+    marketValue: {
+        fontSize: 18,
+        fontWeight: "700",
+        marginTop: 4,
+    },
+    navRow: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 24,
+        flexWrap: "wrap",
+    },
+    navText: {
+        fontWeight: "700",
+        fontSize: 14,
+        letterSpacing: 0.5,
+    },
+    iconRow: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 16,
+    },
+    iconBtn: {
+        padding: 10,
+        borderRadius: 14,
+    },
 
-  mobileSidebar: {
-    width: "80%",
-    height: "100%",
-    padding: 10,
-  },
+    // Welcome
+    welcome: {
+        fontWeight: "800",
+        marginTop: 36,
+        lineHeight: 52,
+    },
 
-  modalOverlay: {
-    flex: 1,
-    flexDirection: "row",
-  },
+    // Fund cards
+    fundWrapper: {
+        gap: 16,
+        marginTop: 24,
+    },
+    fundCard: {
+        minHeight: 130,
+        padding: 22,
+        borderRadius: 24,
+    },
+    fundTitle: {
+        fontSize: 15,
+    },
+    fundValue: {
+        fontWeight: "800",
+        marginTop: 8,
+    },
 
-  remainingOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.45)",
-  },
+    // Analytics
+    sectionTitle: {
+        fontWeight: "700",
+        marginTop: 36,
+        marginBottom: 18,
+    },
+    analyticsWrapper: {
+        gap: 16,
+    },
+    analyticsCard: {
+        padding: 22,
+        minHeight: 160,
+        borderRadius: 24,
+    },
+    analyticsPercent: {
+        fontSize: 40,
+        fontWeight: "800",
+    },
+    analyticsTitle: {
+        fontSize: 16,
+        marginTop: 10,
+        fontWeight: "700",
+    },
+    progressBg: {
+        height: 10,
+        backgroundColor: "rgba(255,255,255,0.15)",
+        borderRadius: 20,
+        marginTop: 18,
+        overflow: "hidden",
+    },
+    progressFill: {
+        height: "100%",
+        borderRadius: 20,
+    },
 
-  sidebarHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 20,
-  },
+    // Shared section card
+    sectionCard: {
+        width: "100%",
+        borderRadius: 24,
+        padding: 20,
+        overflow: "hidden",
+        marginTop: 30,
+    },
 
-  sidebarTitle: {
-    fontSize: isMobile ? 22 : 28,
-    fontWeight: "800",
-  },
+    // Chart
+    chartWrapper: {
+        marginTop: 20,
+        borderRadius: 20,
+        overflow: "hidden",
+        padding: 16,
+        width: "100%",
+    },
 
-  searchInput: {
-    padding: isMobile ? 12 : 14,
-    borderRadius: 16,
-    marginBottom: 24,
-    fontSize: isMobile ? 15 : 16,
-  },
+    // Most traded
+    buyBtn: {
+        width: 36,
+        height: 36,
+        borderRadius: 10,
+        backgroundColor: "rgba(34,197,94,0.2)",
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    sellBtn: {
+        width: 36,
+        height: 36,
+        borderRadius: 10,
+        backgroundColor: "rgba(239,68,68,0.2)",
+        alignItems: "center",
+        justifyContent: "center",
+    },
 
-  stockRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: isMobile ? 20 : 24,
-  },
+    // Top movers
+    tagPill: {
+        paddingHorizontal: 14,
+        paddingVertical: 8,
+        borderRadius: 12,
+    },
+    gainerLabel: {
+        backgroundColor: "rgba(34,197,94,0.12)",
+        paddingHorizontal: 14,
+        paddingVertical: 8,
+        borderRadius: 10,
+    },
+    loserLabel: {
+        backgroundColor: "rgba(239,68,68,0.12)",
+        paddingHorizontal: 14,
+        paddingVertical: 8,
+        borderRadius: 10,
+    },
+    tableHeader: {
+        flexDirection: "row",
+        paddingVertical: 12,
+        borderRadius: 12,
+    },
+    tableHead: {
+        flex: 1,
+        width: 90,
+        color: "#9ca3af",
+        textAlign: "center",
+        fontWeight: "700",
+    },
+    tableRow: {
+        flexDirection: "row",
+        paddingVertical: 16,
+        borderBottomWidth: 1,
+        alignItems: "center",
+    },
+    tableCell: {
+        flex: 1,
+        width: 90,
+        textAlign: "center",
+        fontWeight: "600",
+    },
 
-  stockName: {
-    fontWeight: "700",
-    fontSize: isMobile ? 16 : 18,
-  },
+    // Profile
+    profileOverlay: {
+        flex: 1,
+        backgroundColor: "rgba(0,0,0,0.4)",
+    },
+    profileModal: {
+        position: "absolute",
+        borderRadius: 24,
+        padding: 22,
+        zIndex: 999,
+        elevation: 20,
+    },
+    profileName: {
+        fontSize: 22,
+        fontWeight: "700",
+    },
+    profileMail: {
+        marginTop: 6,
+        marginBottom: 20,
+        fontSize: 14,
+    },
+    profileItem: {
+        paddingVertical: 12,
+    },
+    profileText: {
+        fontSize: 15,
+    },
+    logoutBtn: {
+        marginTop: 20,
+        backgroundColor: "#ef4444",
+        padding: 16,
+        borderRadius: 16,
+        alignItems: "center",
+    },
+    logoutText: {
+        color: "#fff",
+        fontWeight: "700",
+        fontSize: 15,
+    },
 
-  stockType: {
-    marginTop: 4,
-    fontSize: 12,
-  },
-
-  stockPrice: {
-    fontSize: isMobile ? 16 : 18,
-  },
-
-  content: {
-    flex: 1,
-    width: "100%",
-    paddingHorizontal: isMobile ? 10 : 24,
-    paddingTop: isMobile ? 10 : 24,
-  },
-
-  topbar: {
-    justifyContent: "center",
-    alignItems: "isMobile" ? "flex-start" : "center",
-    gap: isMobile ? 18 : 20,
-    width: "100%",
-  },
-
-  marketRow: {
-    flexDirection: "row",
-    gap: isMobile ? 10 : 16,
-    flexWrap: "wrap",
-    justifyContent: "center",
-  },
-
-  marketCard: {
-    paddingVertical: isMobile ? 12 : 16,
-    paddingHorizontal: isMobile ? 16 : 20,
-    borderRadius: 18,
-    minWidth: isMobile ? 120 : 160,
-  },
-
-  marketTitle: {
-    fontSize: isMobile ? 11 : 12,
-  },
-
-  marketValue: {
-    fontSize: isMobile ? 16 : 20,
-    fontWeight: "700",
-    marginTop: 4,
-  },
-
-  navRow: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: isMobile ? 24 : 24,
-    marginTop: isMobile ? 8 : 0,
-    flexWrap: "wrap",
-  },
-
-  navText: {
-    fontWeight: "700",
-    fontSize: isMobile ? 14 : 15,
-  },
-
-  iconRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: isMobile ? 18 : 16,
-    marginTop: isMobile ? 6 : 0,
-  },
-
-  iconBtn: {
-    padding: isMobile ? 10 : 12,
-    borderRadius: 14,
-  },
-
-  welcome: {
-    fontSize: isMobile ? 22 : 56,
-    lineHeight: isMobile ? 30 : 64,
-    fontWeight: "800",
-    marginTop: isMobile ? 24 : 40,
-  },
-
-  fundWrapper: {
-    gap: isMobile ? 14 : 20,
-    marginTop: isMobile ? 20 : 30,
-  },
-
-  fundCard: {
-    flex: 1,
-    minHeight: isMobile ? 110 : 150,
-    padding: isMobile ? 18 : 24,
-    borderRadius: 24,
-    width: isMobile ? "100%" : undefined,
-  },
-
-  fundTitle: {
-    fontSize: isMobile ? 15 : 16,
-  },
-
-  fundValue: {
-    fontSize: isMobile ? 18 : 34,
-    fontWeight: "800",
-    marginTop: 8,
-  },
-
-  sectionTitle: {
-    fontSize: isMobile ? 20 : 28,
-    fontWeight: "700",
-    marginTop: isMobile ? 28 : 40,
-    marginBottom: 20,
-  },
-
-  analyticsWrapper: {
-    gap: isMobile ? 12 : 20,
-  },
-
-  analyticsCard: {
-    flex: 1,
-    padding: isMobile ? 16 : 24,
-    minHeight: isMobile ? 130 : 180,
-    borderRadius: 24,
-  },
-
-  analyticsPercent: {
-    color: "#fff",
-    fontSize: isMobile ? 30 : 42,
-    fontWeight: "800",
-  },
-
-  analyticsTitle: {
-    color: "#fff",
-    fontSize: isMobile ? 16 : 18,
-    marginTop: 10,
-    fontWeight: "700",
-  },
-
-  progressBg: {
-    height: 10,
-    backgroundColor: "rgba(255,255,255,0.1)",
-    borderRadius: 20,
-    marginTop: 18,
-  },
-
-  progressFill: {
-    height: "100%",
-    borderRadius: 20,
-  },
-
-  topMoverCard: {
-    width: "100%",
-    alighnSelf: "stretch",
-    marginTop: 30,
-    padding: isMobile ? 14 : 20,
-    borderRadius: 24,
-    overflow: "hidden",
-  },
-
-  gainerTitle: {
-    color: "#22c55e",
-    fontSize: isMobile ? 16 : 18,
-    fontWeight: "700",
-    marginBottom: 14,
-    marginTop: 10,
-  },
-
-  mobileStock: {
-    fontSize: 18,
-    fontWeight: "700",
-  },
-
-  tableHeader: {
-    flex: 1,
-
-    flexDirection: "row",
-    backgroundColor: "#1f2937",
-    paddingVertical: isMobile ? 10 : 14,
-    borderRadius: 12,
-  },
-
-  tableHead: {
-   flex: 1,
-    width: 90,
-    color: "#9ca3af",
-    textAlign: "center",
-    fontWeight: "700",
-    fontSize: isMobile ? 11 : 14,
-  },
-
-  tableRow: {
-    width: "100%",
-  flexDirection: "row",
-  paddingVertical: isMobile ? 14 : 18,
-  borderBottomWidth: 1,
-  borderBottomColor: "rgba(255,255,255,0.06)",
-  alignItems: "center",
-},
-
-  tableCell: {
-    flex: 1,
-  width: 90,
-  textAlign: "center",
-  fontSize: isMobile ? 11 : 14,
-  fontWeight: "600",
-},
-
-  profileOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.4)",
-  },
-
-  profileModal: {
-    position: "absolute",
-    right: isMobile ? 10 : 20,
-    top: isMobile ? 80 : 70,
-    width: isMobile ? 260 : 340,
-    borderRadius: 24,
-    padding: isMobile ? 18 : 24,
-    zIndex: 999,
-    elevation: 20,
-  },
-
-  profileName: {
-    fontSize: isMobile ? 20 : 24,
-    fontWeight: "700",
-  },
-
-  profileMail: {
-    marginTop: 6,
-    marginBottom: 20,
-    fontSize: isMobile ? 13 : 15,
-  },
-
-  profileItem: {
-    paddingVertical: 12,
-  },
-
-  profileText: {
-    fontSize: isMobile ? 14 : 16,
-  },
-
-  logoutBtn: {
-    marginTop: 20,
-    backgroundColor: "#ef4444",
-    padding: 16,
-    borderRadius: 16,
-    alignItems: "center",
-  },
-
-  logoutText: {
-    color: "#fff",
-    fontWeight: "700",
-  },
-
-  watchlistModal: {
-    position: "absolute",
-    top: isMobile ? 100 : 170,
-    left: isMobile ? 10 : 20,
-    width: isMobile ? "92%" : 460,
-    borderRadius: 24,
-    zIndex: 999,
-    elevation: 20,
-  },
-  chartWrapper: {
-  marginTop: 24,
-  borderRadius: 24,
-  overflow: "hidden",
-  padding: isMobile ? 12 : 20,
-  height: isMobile ? 260 : 420,
-  width: "100%",
-},
-
-chart: {
-  borderRadius: 20,
-  alignSelf: "center",
-},
+    // Watchlist modal
+    watchlistModal: {
+        position: "absolute",
+        borderRadius: 24,
+        padding: 24,
+        zIndex: 999,
+        elevation: 20,
+    },
 });
