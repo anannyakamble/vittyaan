@@ -291,85 +291,102 @@ export default function Dashboard() {
                     showsVerticalScrollIndicator={false}
                 >
                     {/* ── TOPBAR ─────────────────────────────────────────────── */}
-                    <View
-                        style={[
-                            styles.topbar,
-                            {
-                                flexDirection: isMobile ? "column" : "row",
-                                alignItems: isMobile ? "flex-start" : "center",
-                            },
-                        ]}
-                    >
-                        {/* Mobile hamburger */}
-                        {isMobile && (
-                            <TouchableOpacity
-                                onPress={() => setSidebarVisible(true)}
-                                style={{ marginBottom: 12 }}
-                            >
-                                <Feather name="menu" size={32} color={text} />
-                            </TouchableOpacity>
-                        )}
+                    {isMobile ? (
+                        /* ── MOBILE TOPBAR: 2 clean rows ── */
+                        <View style={{ width: "100%", gap: 14 }}>
+                            {/* Row 1: hamburger + market cards + icons */}
+                            <View style={{
+                                flexDirection: "row",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                                width: "100%",
+                            }}>
+                                {/* Hamburger */}
+                                <TouchableOpacity onPress={() => setSidebarVisible(true)}>
+                                    <Feather name="menu" size={28} color={text} />
+                                </TouchableOpacity>
 
-                        {/* Market index pills */}
-                        <View style={[styles.marketRow, { flex: isMobile ? 0 : 1 }]}>
-                            {["NIFTY 50", "BANK NIFTY"].map((label, i) => (
-                                <View
-                                    key={i}
-                                    style={[styles.marketCard, { backgroundColor: inputBg }]}
-                                >
-                                    <Text style={[styles.marketTitle, { color: subText }]}>
-                                        {label}
-                                    </Text>
-                                    <Text style={[styles.marketValue, { color: text }]}>
-                                        {i === 0 ? "24,114.95" : "54,547.05"}
-                                    </Text>
+                                {/* Market pills — centre */}
+                                <View style={{ flexDirection: "row", gap: 8, flex: 1, justifyContent: "center", marginHorizontal: 8 }}>
+                                    {["NIFTY 50", "BANK NIFTY"].map((label, i) => (
+                                        <View key={i} style={[styles.marketCard, { backgroundColor: inputBg, minWidth: 0, flex: 1 }]}>
+                                            <Text style={[styles.marketTitle, { color: subText }]}>{label}</Text>
+                                            <Text style={[styles.marketValue, { color: text, fontSize: 14 }]}>
+                                                {i === 0 ? "24,114.95" : "54,547.05"}
+                                            </Text>
+                                        </View>
+                                    ))}
                                 </View>
-                            ))}
-                        </View>
 
-                        {/* Nav links — centred on desktop */}
-                        <View style={[styles.navRow, { flex: isMobile ? 0 : 1, justifyContent: "center" }]}>
-                            {["HOME", "ORDERS", "FUNDS"].map((item, i) => (
-                                <Text
-                                    key={i}
-                                    style={[
-                                        styles.navText,
-                                        { color: i === 0 ? "#fbbf24" : subText },
-                                    ]}
+                                {/* Icons — right */}
+                                <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+                                    <TouchableOpacity
+                                        style={[styles.iconBtn, { backgroundColor: inputBg, padding: 8 }]}
+                                        onPress={() => setDarkMode(!darkMode)}
+                                    >
+                                        <Ionicons name={darkMode ? "sunny" : "moon"} size={18} color={text} />
+                                    </TouchableOpacity>
+                                    <Ionicons name="notifications" size={22} color={text} />
+                                    <TouchableOpacity onPress={() => setProfileVisible(true)}>
+                                        <FontAwesome5 name="user-circle" size={30} color={text} />
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+
+                            {/* Row 2: nav links */}
+                            <View style={{ flexDirection: "row", gap: 20 }}>
+                                {["HOME", "ORDERS", "FUNDS"].map((item, i) => (
+                                    <Text
+                                        key={i}
+                                        style={[styles.navText, { color: i === 0 ? "#fbbf24" : subText }]}
+                                    >
+                                        {item}
+                                    </Text>
+                                ))}
+                            </View>
+                        </View>
+                    ) : (
+                        /* ── DESKTOP TOPBAR: single flex row ── */
+                        <View style={[styles.topbar, { flexDirection: "row", alignItems: "center" }]}>
+                            {/* Market pills */}
+                            <View style={[styles.marketRow, { flex: 1 }]}>
+                                {["NIFTY 50", "BANK NIFTY"].map((label, i) => (
+                                    <View key={i} style={[styles.marketCard, { backgroundColor: inputBg }]}>
+                                        <Text style={[styles.marketTitle, { color: subText }]}>{label}</Text>
+                                        <Text style={[styles.marketValue, { color: text }]}>
+                                            {i === 0 ? "24,114.95" : "54,547.05"}
+                                        </Text>
+                                    </View>
+                                ))}
+                            </View>
+
+                            {/* Nav — centred */}
+                            <View style={[styles.navRow, { flex: 1, justifyContent: "center" }]}>
+                                {["HOME", "ORDERS", "FUNDS"].map((item, i) => (
+                                    <Text
+                                        key={i}
+                                        style={[styles.navText, { color: i === 0 ? "#fbbf24" : subText }]}
+                                    >
+                                        {item}
+                                    </Text>
+                                ))}
+                            </View>
+
+                            {/* Icons — right */}
+                            <View style={[styles.iconRow, { flex: 1, justifyContent: "flex-end" }]}>
+                                <TouchableOpacity
+                                    style={[styles.iconBtn, { backgroundColor: inputBg }]}
+                                    onPress={() => setDarkMode(!darkMode)}
                                 >
-                                    {item}
-                                </Text>
-                            ))}
+                                    <Ionicons name={darkMode ? "sunny" : "moon"} size={20} color={text} />
+                                </TouchableOpacity>
+                                <Ionicons name="notifications" size={24} color={text} />
+                                <TouchableOpacity onPress={() => setProfileVisible(true)}>
+                                    <FontAwesome5 name="user-circle" size={38} color={text} />
+                                </TouchableOpacity>
+                            </View>
                         </View>
-
-                        {/* Icon group — right-aligned on desktop */}
-                        <View
-                            style={[
-                                styles.iconRow,
-                                {
-                                    flex: isMobile ? 0 : 1,
-                                    justifyContent: isMobile ? "flex-start" : "flex-end",
-                                },
-                            ]}
-                        >
-                            <TouchableOpacity
-                                style={[styles.iconBtn, { backgroundColor: inputBg }]}
-                                onPress={() => setDarkMode(!darkMode)}
-                            >
-                                <Ionicons
-                                    name={darkMode ? "sunny" : "moon"}
-                                    size={20}
-                                    color={text}
-                                />
-                            </TouchableOpacity>
-
-                            <Ionicons name="notifications" size={24} color={text} />
-
-                            <TouchableOpacity onPress={() => setProfileVisible(true)}>
-                                <FontAwesome5 name="user-circle" size={isMobile ? 34 : 38} color={text} />
-                            </TouchableOpacity>
-                        </View>
-                    </View>
+                    )}
 
                     {/* ── WELCOME ────────────────────────────────────────────── */}
                     <Text style={[styles.welcome, { color: text, fontSize: isMobile ? 28 : 42 }]}>
