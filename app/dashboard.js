@@ -418,7 +418,7 @@ export default function Dashboard() {
                                 ]}
                             >
                                 <Text style={[styles.fundTitle, { color: subText }]}>{item}</Text>
-                                <Text style={[styles.fundValue, { color: text, fontSize: isMobile ? 20 : 34 }]}>
+                                <Text style={[styles.fundValue, { color: text, fontSize: isMobile ? 18 : 22 }]}>
                                     ₹1,00,000
                                 </Text>
                             </LinearGradient>
@@ -887,7 +887,7 @@ const styles = StyleSheet.create({
         borderRadius: 24,
     },
     fundTitle: {
-        fontSize: 15,
+        fontSize: 18,
     },
     fundValue: {
         fontWeight: "800",
