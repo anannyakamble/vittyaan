@@ -1,6 +1,6 @@
-// app/dashboard.js
 
-import { useEffect, useRef, useState } from "react";
+
+import { useEffect, useState } from "react";
 import {
     Dimensions,
     Modal,
@@ -24,18 +24,13 @@ import {
 
 import { useRouter } from "expo-router";
 
-// ─── Safe area insets (optional but recommended) ───────────────────────────────
-// If you have react-native-safe-area-context installed, swap this block:
-//   import { useSafeAreaInsets } from "react-native-safe-area-context";
-// And inside the component:
-//   const insets = useSafeAreaInsets();
-// Then use insets.top where needed instead of STATUS_BAR_OFFSET.
+
 const STATUS_BAR_OFFSET = 50;
 
 export default function Dashboard() {
     const router = useRouter();
 
-    // ─── Reactive dimensions ────────────────────────────────────────────────────
+    //  Reactive dimensions
     const [windowDims, setWindowDims] = useState(Dimensions.get("window"));
 
     useEffect(() => {
@@ -49,18 +44,19 @@ export default function Dashboard() {
     const isMobile = width < 768;
     const isTablet = width >= 768 && width < 1024;
 
-    // ─── Chart width measured via onLayout ─────────────────────────────────────
+    //  Chart width measured via onLayout 
     const [chartWidth, setChartWidth] = useState(width - (isMobile ? 70 : 500));
 
-    // ─── UI state ───────────────────────────────────────────────────────────────
+    // UI state 
     const [darkMode, setDarkMode] = useState(true);
     const [sidebarVisible, setSidebarVisible] = useState(false);
     const [profileVisible, setProfileVisible] = useState(false);
     const [watchlistName, setWatchlistName] = useState("Default");
     const [editingWatchlist, setEditingWatchlist] = useState(false);
     const [watchlistModal, setWatchlistModal] = useState(false);
+    const [activeScreen, setActiveScreen] = useState("dashboard");
 
-    // ─── Theme tokens ───────────────────────────────────────────────────────────
+    // Theme tokens 
     const bg      = darkMode ? "#050816" : "#f4f6f9";
     const card    = darkMode ? "#171717" : "#ffffff";
     const text    = darkMode ? "#ffffff" : "#111827";
@@ -69,7 +65,7 @@ export default function Dashboard() {
     const inputBg = darkMode ? "#111827" : "#f3f4f6";
     const tagBg   = darkMode ? "#1f2937" : "#e5e7eb";
 
-    // ─── Data ───────────────────────────────────────────────────────────────────
+    //  Data 
     const stocks = ["SBIN", "TCS", "TATAPOWER", "ITC", "INFY", "HDFCBANK", "RELIANCE"];
 
     const gainers = [
@@ -106,13 +102,13 @@ export default function Dashboard() {
         "Billing History", "Wallet Transactions", "Customer Support",
     ];
 
-    // ─── Computed sizes ─────────────────────────────────────────────────────────
+    //  Computed sizes 
     const SIDEBAR_W      = 230;
     const CONTENT_PX     = isMobile ? 10 : 24;
     const CARD_RADIUS    = 24;
     const STOCK_CARD_W   = isMobile ? "47%" : isTablet ? "30%" : 135;
 
-    // ─── Sidebar stock list (shared between mobile modal & desktop) ─────────────
+    //  Sidebar stock list
     const SidebarStockList = () => (
         <>
             <TextInput
@@ -138,7 +134,7 @@ export default function Dashboard() {
     return (
         <View style={[styles.container, { backgroundColor: bg }]}>
 
-            {/* ── MOBILE SIDEBAR MODAL ─────────────────────────────────────────── */}
+            {/*  MOBILE SIDEBAR MODAL  */}
             <Modal visible={sidebarVisible} transparent animationType="slide">
                 <View style={styles.modalOverlay}>
                     <SafeAreaView style={[styles.mobileSidebar, { backgroundColor: card }]}>
@@ -159,7 +155,7 @@ export default function Dashboard() {
                 </View>
             </Modal>
 
-            {/* ── PROFILE MODAL ────────────────────────────────────────────────── */}
+            {/* PROFILE MODAL  */}
             <Modal visible={profileVisible} transparent animationType="fade">
                 <TouchableOpacity
                     style={styles.profileOverlay}
@@ -180,16 +176,45 @@ export default function Dashboard() {
                     <Text style={[styles.profileMail, { color: subText }]}>
                         user123@gmail.com
                     </Text>
-                    {profileMenuItems.map((item, i) => (
-                        <TouchableOpacity key={i} style={styles.profileItem}>
-                            <Text
-                                style={[styles.profileText, { color: text }]}
-                                numberOfLines={1}
+                    {profileMenuItems.map((item, i) => {
+                        const isWallet = item === "Wallet Transactions";
+                        return (
+                            <TouchableOpacity
+                                key={i}
+                                style={[
+                                    styles.profileItem,
+                                    isWallet && {
+                                        backgroundColor: "rgba(255,107,43,0.1)",
+                                        borderRadius: 10,
+                                        paddingHorizontal: 8,
+                                        marginHorizontal: -8,
+                                    },
+                                ]}
+                                onPress={() => {
+                                    setProfileVisible(false);
+                                    if (item === "Wallet Transactions") {
+                                        router.push("/wallet-transaction");
+                                    }
+                                }}
                             >
-                                {item}
-                            </Text>
-                        </TouchableOpacity>
-                    ))}
+                                <Text
+                                    style={[
+                                        styles.profileText,
+                                        {
+                                            color: isWallet ? "#e9e4e2" : text,
+                                            fontWeight: isWallet ? "800" : "400",
+                                        },
+                                    ]}
+                                    numberOfLines={1}
+                                >
+                                    {item}
+                                </Text>
+                                {isWallet && (
+                                    <Feather name="chevron-right" size={14} color="#ff6b2b" />
+                                )}
+                            </TouchableOpacity>
+                        );
+                    })}
                     <TouchableOpacity
                         style={styles.logoutBtn}
                         onPress={() => {
@@ -202,10 +227,10 @@ export default function Dashboard() {
                 </View>
             </Modal>
 
-            {/* ── MAIN LAYOUT ──────────────────────────────────────────────────── */}
+            {/*  MAIN LAYOUT*/}
             <View style={[styles.layout, { flexDirection: isMobile ? "column" : "row" }]}>
 
-                {/* ── WATCHLIST MODAL ────────────────────────────────────────── */}
+                {/*  WATCHLIST MODAL  */}
                 <Modal visible={watchlistModal} transparent animationType="fade">
                     <TouchableOpacity
                         style={styles.profileOverlay}
@@ -239,7 +264,7 @@ export default function Dashboard() {
                     </View>
                 </Modal>
 
-                {/* ── DESKTOP SIDEBAR ────────────────────────────────────────── */}
+                {/*DESKTOP SIDEBAR*/}
                 {!isMobile && (
                     <View style={[styles.sidebar, { backgroundColor: card }]}>
                         <View style={styles.sidebarHeader}>
@@ -285,12 +310,12 @@ export default function Dashboard() {
                     </View>
                 )}
 
-                {/* ── MAIN CONTENT ───────────────────────────────────────────── */}
+                {/*  MAIN CONTENT */}
                 <ScrollView
                     style={[styles.content, { paddingHorizontal: CONTENT_PX }]}
                     showsVerticalScrollIndicator={false}
                 >
-                    {/* ── TOPBAR ─────────────────────────────────────────────── */}
+                    {/*  TOPBAR */}
                     {isMobile ? (
                         /* ── MOBILE TOPBAR: 2 clean rows ── */
                         <View style={{ width: "100%", gap: 14 }}>
@@ -336,17 +361,24 @@ export default function Dashboard() {
                             {/* Row 2: nav links */}
                             <View style={{ flexDirection: "row", gap: 20 }}>
                                 {["HOME", "ORDERS", "FUNDS"].map((item, i) => (
-                                    <Text
+                                    <TouchableOpacity
                                         key={i}
-                                        style={[styles.navText, { color: i === 0 ? "#fbbf24" : subText }]}
+                                        onPress={() => {
+                                            if (item === "ORDERS") router.push("/dashboard/orders");
+                                            else if (item === "FUNDS") router.push("/dashboard/funds");
+                                        }}
                                     >
-                                        {item}
-                                    </Text>
+                                        <Text
+                                            style={[styles.navText, { color: i === 0 ? "#fbbf24" : subText }]}
+                                        >
+                                            {item}
+                                        </Text>
+                                    </TouchableOpacity>
                                 ))}
                             </View>
                         </View>
                     ) : (
-                        /* ── DESKTOP TOPBAR: single flex row ── */
+                        /* ── DESKTOP TOPBAR */
                         <View style={[styles.topbar, { flexDirection: "row", alignItems: "center" }]}>
                             {/* Market pills */}
                             <View style={[styles.marketRow, { flex: 1 }]}>
@@ -363,12 +395,19 @@ export default function Dashboard() {
                             {/* Nav — centred */}
                             <View style={[styles.navRow, { flex: 1, justifyContent: "center" }]}>
                                 {["HOME", "ORDERS", "FUNDS"].map((item, i) => (
-                                    <Text
+                                    <TouchableOpacity
                                         key={i}
-                                        style={[styles.navText, { color: i === 0 ? "#fbbf24" : subText }]}
+                                        onPress={() => {
+                                            if (item === "ORDERS") router.push("/dashboard/orders");
+                                            else if (item === "FUNDS") router.push("/dashboard/funds");
+                                        }}
                                     >
-                                        {item}
-                                    </Text>
+                                        <Text
+                                            style={[styles.navText, { color: i === 0 ? "#fbbf24" : subText }]}
+                                        >
+                                            {item}
+                                        </Text>
+                                    </TouchableOpacity>
                                 ))}
                             </View>
 
@@ -388,12 +427,12 @@ export default function Dashboard() {
                         </View>
                     )}
 
-                    {/* ── WELCOME ────────────────────────────────────────────── */}
+                    {/*  WELCOME */}
                     <Text style={[styles.welcome, { color: text, fontSize: isMobile ? 28 : 42 }]}>
                         Welcome Back 👋
                     </Text>
 
-                    {/* ── FUND CARDS ─────────────────────────────────────────── */}
+                    {/*  FUND CARDS */}
                     <View
                         style={[
                             styles.fundWrapper,
@@ -425,7 +464,7 @@ export default function Dashboard() {
                         ))}
                     </View>
 
-                    {/* ── TRADE ANALYTICS ────────────────────────────────────── */}
+                    {/*  TRADE ANALYTICS */}
                     <Text style={[styles.sectionTitle, { color: text, fontSize: isMobile ? 20 : 28 }]}>
                         Trade Analytics
                     </Text>
@@ -593,7 +632,7 @@ export default function Dashboard() {
                                 flexWrap: "wrap",
                                 rowGap: 16,
                                 columnGap: 16,
-                                alignItems: "flex-start",
+                                alignItems: "center",
                             }}
                         >
                             {mostTraded.map((item, i) => (
